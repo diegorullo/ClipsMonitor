@@ -304,7 +304,8 @@ public final class RescueFacts{
         POSR (2, "pos-r"),
         POSC (3, "pos-c"),
         DIRECTION(4, "direction"),
-        LOADED (5, "loaded");
+        LOADED (5, "loaded"), // [fixme] not used for AL
+        CONTENT (6, "content"); // [fixme] AL: gestione multislot?
 
         private static final String FACT_NAME = "agentstatus";
         private final int index;
