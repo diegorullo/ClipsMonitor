@@ -25,7 +25,7 @@ public final class RescueFacts{
         POSR (0, "pos-r"),
         POSC (1, "pos-c"),
         CONTAINS (2, "contains"),
-        INJURED (3, "injured");
+        INJURED (3, "injured"); //[fixme] not used for AL
 
         private static final String FACT_NAME = "real_cell";
         private final int index;
@@ -96,10 +96,10 @@ public final class RescueFacts{
         POSR (0, "pos-r"),
         POSC (1, "pos-c"),
         CONTAINS(2, "contains"),
-        INJURED (3, "injured"),
-        DISCOVERED (4, "discovered"),
-        CHECKED (5, "checked"),
-        CLEAR(6, "clear"),
+        INJURED (3, "injured"), //[fixme] not used for AL
+        DISCOVERED (4, "discovered"), //[fixme] not used for AL
+        CHECKED (5, "checked"), //[fixme] not used for AL
+        CLEAR(6, "clear"), //[fixme] not used for AL
         PREVIOUS(7, "previous");
 
         private static final String FACT_NAME = "cell";
@@ -338,16 +338,40 @@ public final class RescueFacts{
         public static String factName() {
             return FACT_NAME;
         }
+        //[fixme] Aggiungo questo metodo per poter debaggare la gestione del multislot
+       
+        public static String getAgentStatus(String ident , int step , int x , int y) {
+
+            String agent = "";
+            agent ="(" + AgentStatus.FACT_NAME     +
+                    "(" + AgentStatus.STEP.slot     + " " + step    +   ")" +
+                    "(" + AgentStatus.TIME.slot     + " " + 0       +   ")" +
+                    "(" + AgentStatus.DIRECTION.slot    + " " + ident   +   ")" +
+                    "(" + AgentStatus.POSR.slot     + " " + x       +   ")" +
+                    "(" + AgentStatus.POSC.slot     + " " + y       +   ")" +
+                    "(" + AgentStatus.LOADED.slot + " " + 0       +   ")" +
+                    "(" + AgentStatus.CONTENT.slot + " out"        +   ")" +
+                    ")\n";
+
+            return agent;
+
+        }
     }
+    
 
 
 
 
 
+// [fixme_critic] Aggiungendo lo slot WORK, avvia l'ambiente grafico ma crasha al termine dell'esecuzione...
+// bisogna individuare le chiamate agli oggetti instanziati da Status e capire perchè 
+// per altri fatti a cui sono stati aggiunti slot nuovi, ciò non accade...
+// soluzione alternativa: utilizzare RESULT rifattorizzando a WORK...
     public enum Status implements RescueFact{
         STEP (0, "step"),
         TIME (1, "time"),
-        RESULT (2, "result");
+        RESULT (2, "result");//,//[fixme] not used for AL
+        //WORK (3, "work");//[fixme] AL
 
         private static final String FACT_NAME = "status";
         private final int index;
@@ -385,14 +409,16 @@ public final class RescueFacts{
 
 
 
-
+// [fixme] l'ordine-posizione degli slot non è lo stesso della regola corrispondente in ENV
+//  tuttavia non dovrebbe influire...
     public enum PersonStatus implements RescueFact{
         POSR (0, "pos-r"),
         POSC (1, "pos-c"),
         IDENT(2, "ident"),
         TIME (3, "time"),
         STEP(4, "step"),
-        ACTIVITY(5, "activity");
+        ACTIVITY(5, "activity"),
+        MOVE (6, "move");//[fixme] AL
 
         private static final String FACT_NAME = "personstatus";
         private final int index;
@@ -426,6 +452,7 @@ public final class RescueFacts{
             return FACT_NAME;
         }
 
+        //[fixme] per questo metodo occorre gestire anche lo slot MOVE di AL...
         public static String getPersonStatus(String ident , int step , int x , int y ) {
 
         String person = "";
@@ -499,6 +526,69 @@ public final class RescueFacts{
 
         }
     }
+    
+
+//  AL: fatto non presente in progetti precedenti
+    public enum StaffStatus implements RescueFact{
+        POSR (0, "pos-r"),
+        POSC (1, "pos-c"),
+        IDENT(2, "ident"),
+        TIME (3, "time"),
+        STEP(4, "step"),
+        ACTIVITY(5, "activity"),
+        MOVE (6, "move");
+
+        private static final String FACT_NAME = "staffstatus";
+        private final int index;
+        private final String slot;
+
+        StaffStatus(int index, String slot){
+            this.index = index;
+            this.slot = slot;
+        }
+
+        @Override
+        public int index(){
+            return index;
+        }
+
+        @Override
+        public String slot(){
+            return slot;
+        }
+
+        public static String[] slotsArray() {
+            RescueFact[] fact = values();
+            String[] slots = new String[fact.length];
+            for (RescueFact slot : fact) {
+                slots[slot.index()] = slot.slot();
+            }
+            return slots;
+        }
+
+        public static String factName() {
+            return FACT_NAME;
+        }
+
+        //[fixme] per questo metodo occorre gestire anche lo slot MOVE di AL...
+        public static String getStaffStatus(String ident , int step , int x , int y ) {
+
+        String staff = "";
+        staff ="(" + StaffStatus.FACT_NAME     +
+                "(" + StaffStatus.STEP.slot     + " " + step    +   ")" +
+                "(" + StaffStatus.TIME.slot     + " " + 0       +   ")" +
+                "(" + StaffStatus.IDENT.slot    + " " + ident   +   ")" +
+                "(" + StaffStatus.POSR.slot     + " " + x       +   ")" +
+                "(" + StaffStatus.POSC.slot     + " " + y       +   ")" +
+                "(" + StaffStatus.ACTIVITY.slot + " out"        +   ")" +
+                ")\n";
+
+        return staff;
+
+    }
+
+    }
+ 
 
 
     public enum KCell implements RescueFact{

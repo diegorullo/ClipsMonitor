@@ -1,0 +1,5 @@
+Strategy        |World           |Time    |Score           |Undisco |Uncheck |NumPers 
+0000_TEST       |default         |300     |2648107.0       |1       |3       |2       
+0000_TEST       |default         |300     |2648107.0       |1       |3       |2       
+0000_TEST       |default         |300     |2648107.0       |1       |3       |2       
+0000_TEST       |default         |300     |2648107.0       |1       |3       |2       
