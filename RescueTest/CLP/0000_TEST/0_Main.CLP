@@ -1,33 +1,53 @@
-; Questo programma contiene il simulatore dell'agente di Rescue2015
-
+; Questo programma contiene il simulatore dell'agente robotico per applicazione 
+;   ASSISTED LIVING
 ;
-
+;  Si noti che la parte di funzionamento dell'agente è separata
+;  dal particolare problema da risolvere.
 ;
+;  Infatti la definizione del problema in termini di 
+;         mappa iniziale (descritta con istanzazioni di prior_cell)
+;  deve essere contenuta nel file InitMap.txt       
+; cosi come l'accoppiamento <Tavolo,sedia>.
+;
+;  la descrizione di quali eventi avvengono durante l'esecuzione è
+;  contenuta nel file history.txt inclusa la durata massima (maxduration)
+;  Questo file contiene anche le informazioni per indicare  quali sono 
+;  gli anziani (dove sono localizzati all'inizio), quali attività svolgeranno 
+;  e quali sono gli operatori sanitari,
+;  
+;
+ 
+;_______________________________________________________________________________________________________________________
+;// MAIN                                                
+;// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
 
 
 (defmodule MAIN (export ?ALL))
 
 
-(deftemplate exec
-   (slot step)
-   (slot action
-     (allowed-values
-       forward turnright turnleft
-       drill load_debris unload_debris
-       wait inform done
-     )
-   )
-   (slot param1)
-   (slot param2)
-   (slot param3)
-)
+(deftemplate exec 
+	(slot step) 	
+	(slot action  (allowed-values forward turnright turnleft wait 
+                                      loadmeal loadpill loaddessert 
+                                      deliverymeal deliverypill deliverydessert 
+                                      cleantable emptyrobot releasetrash checkid 
+                                      inform done))
+        (slot param1)
+        (slot param2)
+        (slot param3)
+        (slot param4))
 
 
 
 
 (deftemplate status (slot step) (slot time) (slot result (allowed-values no done disaster)) )
 
-
+(deftemplate table-seat (slot t_pos-r) (slot t_pos-c)(slot s_pos-r) (slot s_pos-c))
+(deftemplate prescription
+              (slot patient)
+              (slot meal (allowed-values normal dietetic))
+              (slot pills (allowed-values no before after))
+              (slot dessert (allowed-values yes no)))
 (deftemplate init_cell
 
     (slot pos-r)
