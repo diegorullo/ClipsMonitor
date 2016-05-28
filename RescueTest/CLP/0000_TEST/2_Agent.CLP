@@ -1,13 +1,13 @@
-;  ---------------------------------------------
-;  --- Definizione del modulo e dei template ---
-;  ---------------------------------------------
-(defmodule AGENT (import MAIN ?ALL) (export ?ALL))
+;// AGENT
+
+
+(defmodule AGENT (import MAIN ?ALL)(export ?ALL))
 
 (deftemplate K-cell
   (slot sound (allowed-values yes no unknown) (default unknown))
   (slot pos-r)
   (slot pos-c)
-  (slot contains (allowed-values empty debris wall gate outdoor person unknown)) ;a che serve contein person??
+  (slot contains (allowed-values empty wall parking personseated personstanding unknown)) ;a che serve contain person??
   (slot injured (allowed-values yes no unknown))
   (slot discovered)
   (slot checked)
@@ -248,6 +248,7 @@
 ;  ------------------------------------------------
 
 ; Esegue l'azione dello step corrente, lasciando il controllo al main
+
 (defrule exec_act
     (declare (salience 0))
     (status (step ?i))
@@ -266,3 +267,7 @@
   (assert (clips-monitor stop))
   (halt)
 )
+
+
+
+
