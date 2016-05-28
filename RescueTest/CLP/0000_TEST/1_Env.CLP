@@ -12,55 +12,56 @@
   (slot pos-c)
   (slot contains
     (allowed-values
-      empty
-      debris
-      wall
-      gate
-      person
-      outdoor
-; [adeguamentoAL]
-      seat
-      table 
-      dessertdispenser  
-      parking 
-      mealdispenser 
-      trashbasket 
-      pilldispenser
+                robot wall personseated personstanding  
+                empty parking table seat trashbasket
+                dessertdispenser pilldispenser mealdispenser
     )
   )
   (slot injured (allowed-values yes no))
 )
 
-(deftemplate cell
-  (slot step)
-  (slot time)
-  (slot pos-r)
-  (slot pos-c)
-  (slot contains
-    (allowed-values
-       robot
-       empty
-       debris
-       wall
-       gate
-       person
-       outdoor
+;(deftemplate cell
+ ; (slot step)
+;  (slot time)
+;  (slot pos-r)
+;  (slot pos-c)
+;  (slot contains
+;    (allowed-values
+ ;      robot
+;       empty
+ ;      debris
+ ;      wall
+;       gate
+;       person
+ ;      outdoor
 ; [adeguamentoAL]
-      seat
-      table 
-      dessertdispenser  
-      parking 
-      mealdispenser 
-      trashbasket 
-      pilldispenser
-    )
-  )
-  (slot injured (allowed-values yes no))
-  (slot previous)
-  (slot discovered)
-  (slot checked)
-  (slot clear)
-)
+;      seat
+ ;     table 
+ ;     dessertdispenser  
+ ;     parking 
+ ;     mealdispenser 
+ ;     trashbasket 
+  ;    pilldispenser
+ ;   )
+ ; )
+ ; (slot injured (allowed-values yes no))
+ ; (slot previous)
+ ; (slot discovered)
+  ;(slot checked)
+ ; (slot clear)
+;)
+
+(deftemplate cell  (slot step) (slot time) (slot pos-r) (slot pos-c) 
+                   (slot contains (allowed-values robot wall personseated personstanding  
+                                                  empty parking table seat trashbasket
+                                                  dessertdispenser pilldispenser mealdispenser))
+                   (slot previous)
+                (slot injured (allowed-values yes no))
+                (slot discovered)
+                (slot checked)
+                (slot clear)
+))
+
 
 (deftemplate agentstatus
   (slot step)
@@ -127,14 +128,6 @@
 
 
 
-(defrule  create3-1
-  (declare (salience 25))
-  (create-init-map)
-  (real_cell (pos-r ?r) (pos-c ?c) (contains outdoor))
-  =>
-  (assert (init_cell (pos-r ?r) (pos-c ?c) (contains outdoor)))
-)
-
 
 
 (defrule  create3-2
@@ -142,18 +135,8 @@
   (create-init-map)
 ; [adeguamentoAL]
 ;  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
-   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
+   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
 
-
-      
-      
-
-  (or
-    (real_cell (pos-r =(+ ?r 1)) (pos-c ?c) (contains outdoor))
-    (real_cell (pos-r =(- ?r 1)) (pos-c ?c) (contains outdoor))
-    (real_cell (pos-r ?r) (pos-c =(+ ?c 1)) (contains outdoor))
-    (real_cell (pos-r ?r) (pos-c =(- ?c 1)) (contains outdoor))
-  )
   =>
   (assert (init_cell (pos-r ?r) (pos-c ?c) (contains ?x)))
 )
@@ -180,7 +163,7 @@
   (create-init-map)
 ; [adeguamentoAL]
 ;  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
-   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
+   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
   (not (init_cell (pos-r ?r) (pos-c ?c)))
   =>
   (assert (init_cell (pos-r ?r) (pos-c ?c) (contains unknown)))
@@ -248,7 +231,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded no))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-r (+ ?r 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
@@ -264,7 +247,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded yes))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-r (+ ?r 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
@@ -285,7 +268,7 @@
           (pos-c ?c)
 ; [adeguamentoAL]
 ;          (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser)
-           (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser)
+           (contains wall|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser)
         )
   ?f4<- (penalty ?p)
   =>
@@ -317,7 +300,7 @@
     (step ?i)
     (pos-r =(+ ?r 1))
     (pos-c ?c)
-    (contains person)
+    (contains personseated|personstanding)
     )
     ?f4<- (penalty ?p)
   =>
@@ -346,7 +329,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded no))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-r (- ?r 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
@@ -362,7 +345,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded yes))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-r (- ?r 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
@@ -380,7 +363,7 @@
   ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c)
 ; [adeguamentoAL]
 ;      (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-       (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
+       (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -401,7 +384,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c)
-      (contains person))
+      (contains personseated|personstanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -423,7 +406,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded no))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-c (- ?c 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
@@ -439,7 +422,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded yes))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-c (- ?c 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
@@ -457,7 +440,7 @@
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1))
 ; [adeguamentoAL]
 ;     (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-      (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
+      (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -479,7 +462,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1))
-      (contains person))
+      (contains personseated|personstanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -501,7 +484,7 @@
     (exec (step ?i) (action  forward))
     ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded no))
     ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-    ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|gate))
+    ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|parking))
   =>
     (modify  ?f1 (pos-c (+ ?c 1)) (step (+ ?i 1))(time (+ ?t 1)))
     (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
@@ -517,7 +500,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded yes))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|gate))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|parking))
   =>
   (modify  ?f1 (pos-c (+ ?c 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
@@ -535,7 +518,7 @@
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1))
 ; [adeguamentoAL]
 ;      (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-       (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
+       (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -555,7 +538,7 @@
   (exec (step ?i) (action  forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1))
-      (contains person))
+      (contains personseated|personstanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -793,890 +776,6 @@
 )
 
 
-;;***************************************
-;;             DRILL
-;;****************************************
-
-
-
-(defrule drill-north-ok
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured ?p))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y))
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                       (pos-r ?x)(pos-c ?y) (result ?p)))
-)
-
-
-
-(defrule drill-north-ko1
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ~debris))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?r 1)) (pos-c ?c))
-  ?f4<- (penalty ?p)
-  =>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
- (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                      (pos-r ?r)(pos-c ?c) (result fail))
-         (penalty (+ ?p 1000000))
-      )
-  (retract ?f4)
-)
-
-
-
-(defrule drill-south-ok
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains debris) (injured ?p))
-  ?f1<- (agentstatus (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c))
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                       (pos-r ?r)(pos-c ?c) (result ?p)))
- )
-
-
-
-(defrule drill-south-ko1
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ~debris))
-  ?f1<- (agentstatus (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                      (pos-r ?r)(pos-c ?c) (result fail))
-         (penalty (+ ?p 1000000))
-  )
-  (retract ?f4)
-)
-
-
-
-(defrule drill-east-ok
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains debris) (injured ?p))
-  ?f1<- (agentstatus (step ?i) (pos-c =(+ ?c 1)) (pos-r ?r))
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                     (pos-r ?r)(pos-c ?c) (result ?p)))
-)
-
-
-
-(defrule drill-east-ko1
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ~debris))
-  ?f1<- (agentstatus (step ?i) (pos-c =(+ ?c 1)) (pos-r ?r))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                      (pos-r ?r)(pos-c ?c) (result fail))
-         (penalty (+ ?p 1000000))
-  )
-  (retract ?f4)
-)
-
-
-
-(defrule drill-west-ok
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains debris) (injured ?p))
-  ?f1<- (agentstatus (step ?i) (pos-c =(- ?c 1)) (pos-r ?r))
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                     (pos-r ?r)(pos-c ?c) (result ?p)))
-)
-
-
-
-(defrule drill-west-ko1
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ~debris))
-  ?f1<- (agentstatus (step ?i) (pos-c =(- ?c 1)) (pos-r ?r))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                      (pos-r ?r)(pos-c ?c) (result fail))
-         (penalty (+ ?p 1000000))
-      )
-  (retract ?f4)
-)
-
-
-
-(defrule drill_KO_too_far
-  (declare (salience 19))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  drill) (param1 ?r) (param2 ?c))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c))
-  ?f1<- (agentstatus (step ?i))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 60)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 60)))
-  (assert (perc-drill  (step (+ ?i 1)) (time (+ ?t 60))
-                      (pos-r ?r)(pos-c ?c) (result fail))
-         (penalty (+ ?p 1000000))
-  )
-  (retract ?f4)
-)
-
-;******************************
-;          LOAD_DEBRIS
-;******************************
-
-
-
-(defrule load_OK_north
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded no))
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded yes))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains empty))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
-  (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                       (loaded  yes)))
-)
-
-
-
-(defrule load_injured_north
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y))
-  =>
-   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)) (result disaster))
-   (printout t crlf crlf)
-   (printout t "disaster at time " ?i)
-   (printout t crlf crlf)
-   (printout t "exec of load_debris with person in (" ?x ","  ?y ")")
-   (printout t crlf crlf)
-   (pop-focus)
- )
-
-
-
-(defrule load_KO_Person_north
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person) )
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded ?l))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded no))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains person))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
-  (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                         (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                         (loaded ?l))
-            (penalty (+ ?p 10000000))
-   )
-   (retract ?f4)
-)
-
-
-
-(defrule load_OK_south2
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no))
-  ?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y) (loaded no))
-  =>
-   (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded yes))
-   (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains empty))
-   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
-   (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                         (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                         (loaded  yes))
-   )
-)
-
-
-
-(defrule load_injured_south
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes))
-  ?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y))
-  =>
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)) (result disaster))
-  (printout t crlf crlf)
-  (printout t "disaster at time " ?i)
-  (printout t crlf crlf)
-  (printout t "exec of load_debris with person in (" ?x ","  ?y ")")
-  (printout t crlf crlf)
-  (pop-focus)
-)
-
-
-
-(defrule load_KO_Person_south
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person))
-  ?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y)(loaded ?l))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded no))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains person))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
-  (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                       (loaded ?l))
-          (penalty (+ ?p 10000000))
-  )
-  (retract ?f4)
-)
-
-
-
-(defrule load_OK_east2
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)) (loaded no))
-=>
-(modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains empty))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                       (loaded  yes)))
- )
-
-
-
-(defrule load_injured_east
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)))
-=>
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)) (result disaster))
- (printout t crlf crlf)
- (printout t "disaster at time " ?i)
- (printout t crlf crlf)
- (printout t "exec of load_debris with person in (" ?x ","  ?y ")")
- (printout t crlf crlf)
- (pop-focus)
- )
-
-
-
-(defrule load_KO_Person_east
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1))(loaded ?l))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                       (loaded ?l))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f4)
- )
-
-
-
-(defrule load_OK_west2
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded no))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains empty))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded  yes)))
- )
-
-
-
-(defrule load_injured_west
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)))
-=>
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)) (result disaster))
- (printout t crlf crlf)
- (printout t "disaster at time " ?i)
- (printout t crlf crlf)
- (printout t "exec of load_debris with person in (" ?x ","  ?y ")")
- (printout t crlf crlf)
- (pop-focus)
- )
-
-
-
-(defrule load_KO_Person_west
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded ?l))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded ?l))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f3)
- )
-
-
-
-(defrule load_KO
-(declare (salience 19))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  load_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y))
-?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c) (loaded ?l))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 20)) (loaded ?l))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 20)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 20)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 20))
-                       (robotpos-r ?r) (robotpos-c ?c)
-                       (loaded ?l))
-          (penalty (+ ?p 1000000))
- )
- (retract ?f4)
- )
-
-;******************************
-;          UNLOAD_DEBRIS
-;******************************
-
-
-
-(defrule unload_OK_north_outdoor
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains outdoor))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded yes))
-  =>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 10)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 10)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 10)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 10))
-                       (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                       (loaded  no)))
- )
-
-
-
-(defrule unload_OK_north_empty_noclear
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear no))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded yes))
-  =>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)) (contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                       (loaded  no)))
-)
-
-
-
-(defrule unload_north_empty_clear
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear yes))
-  ?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded yes))
-  ?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                       (loaded  no))
-         (penalty (+ ?p 100000)))
- (retract ?f4)
- )
-
-
-
-(defrule unload_KO_Person_north
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person) )
-?f1<- (agentstatus (step ?i) (pos-r =(- ?x 1)) (pos-c ?y) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(- ?x 1)) (robotpos-c ?y)
-                       (loaded yes))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f4)
- )
-
-
-
-(defrule unload_OK_south_outdoor
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains outdoor))
-?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y) (loaded yes))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 10)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 10)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 10)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 10))
-                       (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                       (loaded  no)))
-)
-
-
-
-(defrule unload_OK_south_empty_noclear
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear no))
-?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y) (loaded yes))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                       (loaded  no)))
- )
-
-
-
-(defrule unload_south_empty_clear
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear yes))
-?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                       (loaded  no))
-         (penalty (+ ?p 100000)))
- (retract ?f4)
- )
-
-
-
-(defrule unload_KO_Person_south
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person) )
-?f1<- (agentstatus (step ?i) (pos-r =(+ ?x 1)) (pos-c ?y) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r =(+ ?x 1)) (robotpos-c ?y)
-                       (loaded yes))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f4)
- )
-
-
-
-(defrule unload_OK_east_outdoor
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains outdoor))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)) (loaded yes))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 10)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 10)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 10)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 10))
-                       (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                       (loaded  no)))
- )
-
-
-
-(defrule unload_OK_east_empty_noclear
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear no))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)) (loaded yes))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                       (loaded  no)))
-)
-
-
-
-(defrule unload_east_empty_clear
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear yes))
-  ?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)) (loaded yes))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
-  (assert
-    (perc-loaded (step (+ ?i 1)) (time (+ ?t 16))
-                         (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                         (loaded  no))
-           (penalty (+ ?p 100000)))
-   (retract ?f4)
- )
-
-
-
-(defrule unload_KO_Person_east
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person) )
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(- ?y 1)) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r ?x) (robotpos-c =(- ?y 1))
-                       (loaded yes))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f4)
- )
-
-
-
-(defrule unload_OK_west_outdoor
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains outdoor))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded yes))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 10)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 10)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 10)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 10))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded  no)))
- )
-
-
-
-(defrule unload_OK_west_empty_noclear
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear no))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded yes))
-=>
-(modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded  no)))
- )
-
-
-
-(defrule unload_west_empty_clear
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty) (clear yes))
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded no))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16))(contains debris)(injured no))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded  no))
-         (penalty (+ ?p 100000)))
- (retract ?f4)
- )
-
-
-
-(defrule unload_KO_Person_west
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains person) )
-?f1<- (agentstatus (step ?i) (pos-r ?x) (pos-c =(+ ?y 1)) (loaded yes))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded yes))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)) (contains person))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
- (assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                       (robotpos-r ?x) (robotpos-c =(+ ?y 1))
-                       (loaded yes))
-          (penalty (+ ?p 10000000))
- )
- (retract ?f4)
- )
-
-
-
-(defrule unload_KO
-(declare (salience 19))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  unload_debris) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y))
-?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c) (loaded ?l))
-?f4<- (penalty ?p)
-=>
-(modify ?f1  (step (+ ?i 1)) (time (+ ?t 16)) (loaded ?l))
-(modify ?f3 (step (+ ?i 1)) (time (+ ?t 16)))
-(modify ?f2 (step (+ ?i 1)) (time (+ ?t 16)))
-(assert (perc-loaded  (step (+ ?i 1)) (time (+ ?t 16))
-                 (robotpos-r ?r) (robotpos-c ?c)
-                 (loaded ?l))
-    (penalty (+ ?p 1000000))
-)
-(retract ?f4)
-)
-
-;******************************
-;          INFORM
-;******************************
-
-
-
-(defrule inform-discover-ok
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 discover))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes)
-    (discovered no))
-?f1<- (agentstatus (step ?i))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)) (discovered yes))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- )
-
-
-
-(defrule inform-discover-useless
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 discover))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes)
-    (discovered yes))
-?f1<- (agentstatus (step ?i))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- (assert (penalty (+ ?p 25000)))
- (retract ?f4)
- )
-
-
-
-(defrule inform-discover-KO1
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 discover))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no))
-?f1<- (agentstatus (step ?i))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- (assert (penalty (+ ?p 20000000)))
- (retract ?f4)
- )
-
-
-
-(defrule inform-discover-KO2
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 discover))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains ~debris))
-?f1<- (agentstatus (step ?i))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- (assert (penalty (+ ?p 20000000)))
- (retract ?f4)
- )
-
-
-
-(defrule inform-checked-ok
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 checked))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no)
-    (checked no))
-?f1<- (agentstatus (step ?i))
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)) (checked yes))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- )
-
-
-
-(defrule inform-checked-useless
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 checked))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured no)
-    (checked yes))
-?f1<- (agentstatus (step ?i))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- (assert (penalty (+ ?p 25000)))
- (retract ?f4)
- )
-
-
-
-(defrule inform-checked-KO1
-(declare (salience 20))
-?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 checked))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes))
-?f1<- (agentstatus (step ?i))
-?f4<- (penalty ?p)
-=>
- (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
- (assert (penalty (+ ?p 50000000)))
- (retract ?f4)
- )
-
-
-
-(defrule inform-checked-KO2
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 checked))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains ~debris))
-  ?f1<- (agentstatus (step ?i))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
-  (assert (penalty (+ ?p 20000000)))
-  (retract ?f4)
- )
-
-
-
 (defrule inform-clear-ok
 (declare (salience 20))
 ?f2<- (status (step ?i) (time ?t))
@@ -1689,24 +788,6 @@
  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)) (clear yes))
  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
  )
-
-
-
-(defrule inform-clear-useless
-  (declare (salience 20))
-  ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 clear))
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains debris)
-      (clear yes))
-  ?f1<- (agentstatus (step ?i))
-  ?f4<- (penalty ?p)
-  =>
-  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
-  (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)))
-  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
-  (assert (penalty (+ ?p 25000)))
-  (retract ?f4)
-)
 
 
 
@@ -1731,43 +812,12 @@
 ;******************************
 
 
-
-(defrule done-undiscovered
-  (declare (salience 21))
-  (status (step ?i) (time ?t))
-  (exec (step ?i) (action  done))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains debris)
-  (injured yes) (discovered no))
-  ?f1<- (penalty ?p)
-  =>
-  (assert (penalty (+ ?p 2000000)))
-  (modify ?f3 (discovered done))
-  (retract ?f1)
- )
-
-
-
-(defrule done-unchecked
-  (declare (salience 21))
-  (status (step ?i) (time ?t))
-  (exec (step ?i) (action  done))
-  ?f3<-(cell (step ?i) (pos-r ?r) (pos-c ?c) (contains debris)
-    (injured no) (checked no))
-    ?f1<- (penalty ?p)
-  =>
-  (assert (penalty (+ ?p 200000)))
-  (modify ?f3 (checked done))
-  (retract ?f1)
- )
-
-
-
 (defrule done-no-gate
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
   (exec (step ?i) (action  done))
   (agentstatus (step ?i) (pos-r ?r) (pos-c ?c))
-  (cell (step ?i)(pos-r ?r) (pos-c ?c) (previous ~gate))
+  (cell (step ?i)(pos-r ?r) (pos-c ?c) (previous ~parking))
   ?f1<- (penalty ?p)
   =>
   (assert (penalty (+ ?p 100000)))
@@ -1783,7 +833,7 @@
   ?f2<- (status (step ?i) (time ?t))
   (exec (step ?i) (action  done))
   (agentstatus (step ?i) (pos-r ?r) (pos-c ?c))
-  (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous gate))
+  (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous parking))
   =>
   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)) (result done))
   (pop-focus)
@@ -1805,68 +855,6 @@
   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 5)))
   (modify ?f1 (step (+ ?i 1)) (time (+ ?t 5)))
 )
-
-
-;******************************************
-; GENERAZIONE EVOLUZIONE TEMPORALE E PENALTY
-; per ogni istante di tempo che una persona injured resta sotto le macerie fino
-; non viene discovered prende 50 punti
-;******************************************
-
-
-
-(defrule Evolution-debris-injured-not-disc
-(declare (salience 15))
-(status (time ?t) (step ?i))
-?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes) (discovered no))
-(not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
-?f2<-	(penalty ?p)
-=>
-(modify ?f1 (time ?t) (step ?i))
-(assert (penalty (+ ?p (* (- ?t ?tt) 50))))
-(retract ?f2)
-)
-
-
-
-(defrule Evolution-debris-injured-disc
-  (declare (salience 15))
-  (status (time ?t) (step ?i))
-  ?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains debris) (injured yes) (discovered yes))
-  (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
-=>
-  (modify ?f1 (time ?t) (step ?i))
-)
-;// per ogni istante di tempo una cella debris senza persona intrappolata prende 4 punti
-;// fino a quando non viene dichiarata checked
-
-
-
-(defrule Evolution-debris-no-injured-no-check
-  (declare (salience 15))
-  (status (time ?t) (step ?i))
-  ?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains debris) (injured no) (checked no))
-  (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
-  ?f2<-	(penalty ?p)
-=>
-  (modify ?f1 (time ?t) (step ?i))
-  (assert (penalty (+ ?p (* (- ?t ?tt) 4))))
-  (retract ?f2)
-)
-
-
-
-(defrule Evolution-debris-no-injured-checked
-  (declare (salience 15))
-  (status (time ?t) (step ?i))
-  ?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains debris) (injured no) (checked yes))
-  (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
-=>
-  (modify ?f1 (time ?t) (step ?i))
-)
-;// per ogni istante di tempo  una cella empty prende 1 punto fino a quando
-;// non viene dichiarata clear
-
 
 
 (defrule Evolution-empty-no-clear
@@ -1900,7 +888,7 @@
 (status (time ?t) (step ?i))
 ?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y)
 ; [adeguamentoAL]
-    (contains wall|gate|person|outdoor|robot|seat))
+    (contains wall|parking|personseated|personstanding|robot|seat))
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 =>
 (modify ?f1 (time ?t) (step ?i))
@@ -1947,10 +935,10 @@
               (activity ?m&~out&~stand) (move ?s))
   ?f4 <- (cell (step ?i) (pos-r ?x) (pos-c ?y) (previous ?w))
   ?f3 <- (move-path ?m =(+ ?s 1) ?id ?r ?c)
-  ?f2 <- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ?xx&empty|gate|outdoor))
+  ?f2 <- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ?xx&empty|parking))
 =>
    (modify  ?f1  (step ?i) (time ?t) (pos-r ?r) (pos-c ?c) (move (+ ?s 1)))
-   (modify ?f2 (contains person) (previous ?xx))
+   (modify ?f2 (contains personstanding) (previous ?xx))
    (modify ?f4 (contains ?w))
    (retract ?f3)
 )
@@ -1981,7 +969,7 @@
   ?f1<-	(personstatus (step =(- ?i 1)) (time ?tt) (ident ?id) (activity ?m&~out&~stand) (move ?s))
   (move-path ?m =(+ ?s 1) ?id ?r ?c)
 ; [adeguamentoAL]
-  (cell (step ?i)(pos-r ?r) (pos-c ?c) (contains wall|debris|person|seat))
+  (cell (step ?i)(pos-r ?r) (pos-c ?c) (contains wall|personseated|personstanding|seat|table|dessertdispenser|mealdispenser|pilldispenser|trashbasket))
 =>
   (modify  ?f1 (time ?t) (step ?i))
 )
@@ -1999,25 +987,7 @@
 )
 
 
-;******************************************
-;    GENERAZIONE PERCEZIONI ACUSTICHE
-;******************************************
 
-
-
-(defrule percept-acoust-yes
-  (declare (salience 8))
-  (status (step ?i) (time ?t&:(> ?t 0)))
-  (agentstatus (pos-r ?r) (pos-c ?c) (step ?i))
-  (or
-    (cell (step ?i)(pos-r =(+ ?r 1)) (pos-c ?c) (contains debris) (injured yes))
-    (cell (step ?i)(pos-r =(- ?r 1)) (pos-c ?c) (contains debris)(injured yes))
-    (cell (step ?i)(pos-r ?r) (pos-c =(+ ?c 1)) (contains debris)(injured yes))
-    (cell (step ?i)(pos-r ?r) (pos-c =(- ?c 1)) (contains debris)(injured yes))
-  )
-  =>
-  (assert (perc-acoust (step ?i) (time ?t) (pos-r ?r) (pos-c ?c) (ac yes)))
-)
 
 
 
