@@ -7,49 +7,9 @@
 
 (defmodule ENV (import MAIN ?ALL)(export ?ALL))
 
-(deftemplate real_cell
-  (slot pos-r)
-  (slot pos-c)
-  (slot contains
-    (allowed-values
-                robot wall personseated personstanding  
-                empty parking table seat trashbasket
-                dessertdispenser pilldispenser mealdispenser
-    )
-  )
-  (slot injured (allowed-values yes no))
-)
 
-;(deftemplate cell
- ; (slot step)
-;  (slot time)
-;  (slot pos-r)
-;  (slot pos-c)
-;  (slot contains
-;    (allowed-values
- ;      robot
-;       empty
- ;      debris
- ;      wall
-;       gate
-;       person
- ;      outdoor
-; [adeguamentoAL]
-;      seat
- ;     table 
- ;     dessertdispenser  
- ;     parking 
- ;     mealdispenser 
- ;     trashbasket 
-  ;    pilldispenser
- ;   )
- ; )
- ; (slot injured (allowed-values yes no))
- ; (slot previous)
- ; (slot discovered)
-  ;(slot checked)
- ; (slot clear)
-;)
+
+
 
 (deftemplate cell  (slot step) (slot time) (slot pos-r) (slot pos-c) 
                    (slot contains (allowed-values robot wall personseated personstanding  
@@ -60,7 +20,7 @@
                 (slot discovered)
                 (slot checked)
                 (slot clear)
-))
+)
 
 
 (deftemplate agentstatus
