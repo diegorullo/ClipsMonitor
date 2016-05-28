@@ -11,15 +11,16 @@
 
 
 
-(deftemplate cell  (slot step) (slot time) (slot pos-r) (slot pos-c) 
-                   (slot contains (allowed-values robot wall personseated personstanding  
+(deftemplate cell  
+        (slot step) ;  Rescue
+        (slot time) ;  Rescue
+        (slot pos-r) 
+        (slot pos-c) 
+        (slot contains (allowed-values robot wall personseated personstanding  
                                                   empty parking table seat trashbasket
                                                   dessertdispenser pilldispenser mealdispenser))
-                   (slot previous)
-                (slot injured (allowed-values yes no))
-                (slot discovered)
-                (slot checked)
-                (slot clear)
+        (slot previous)
+
 )
 
 
@@ -29,7 +30,64 @@
   (slot pos-r)
   (slot pos-c)
   (slot direction)
-  (slot loaded)
+  (slot loaded) ; sostituire con content (multislot)
+)
+
+(deftemplate agentstatusdisplayed 
+	(slot step)
+        (slot time) 
+	(slot pos-r) 
+	(slot pos-c) 
+	(slot direction) 
+	(slot loaded)
+)
+
+(deftemplate tablestatus	
+	(slot step)
+        (slot time)
+	(slot pos-r) 
+	(slot pos-c) 
+	(slot clean (allowed-values yes no stop))
+	(slot occupied-by)
+        )
+
+(deftemplate mealstatus	;// 
+	(slot step)
+        (slot time)			;// tempo corrente
+	(slot arrivaltime)	;// momento in cui é arrivata l'ordinazione
+	(slot requested-by)	;// 
+	(slot type)
+        (slot tpos-r)
+        (slot tpos-c)
+        (slot delivered)
+        (slot delivertime)
+        (slot answer (allowed-values pending yes wait reject))	
+)
+
+(deftemplate dessertstatus	;// 
+	(slot step)
+        (slot time)			;// tempo corrente
+	(slot arrivaltime)	;// momento in cui é arrivata l'ordinazione
+	(slot requested-by)	;// 
+        (slot tpos-r)
+        (slot tpos-c)
+        (slot delivered)
+        (slot answer (allowed-values pending yes wait reject))	
+)
+
+(deftemplate pillstatus	;// 
+	(slot step)
+        (slot time)			;// tempo corrente
+	(slot for)	;// 
+        (slot delivered)
+        (slot when (allowed-values before after no))	
+)
+
+(deftemplate initpersonpos	;// informazioni sulla posizione degli anziani
+	(slot ident)
+	(slot type (allowed-values staff patient))
+        (slot pos-r)
+	(slot pos-c)			
 )
 
 (deftemplate personstatus 	;// informazioni sulla posizione delle persone
@@ -42,16 +100,40 @@
   (slot move)
 )
 
+(deftemplate staffstatus 	;// informazioni sulla posizione delle persone
+	(slot step)
+        (slot time)
+	(slot ident)
+	(slot pos-r)
+	(slot pos-c)
+	(slot activity)   ;// activity  stand se in piedi, oppure path  		
+        (slot move)			
+)
+
 (deftemplate personmove		;// modella i movimenti delle persone. l'environment deve tenere conto dell'interazione di tanti agenti. Il mondo cambia sia per le azioni del robot, si per le azioni degli operatori. Il modulo environment deve gestire le interazioni.
   (slot step)
   (slot ident)
   (slot path-id)
 )
 
+(deftemplate event   		;// gli eventi sono le richieste meal dessert
+	(slot step)
+	(slot type (allowed-values meal dessert))
+	(slot person)
+	
+)
+
+(deftemplate pillrepository
+        (slot id)
+        (multislot content))
+
+;// DEFRULE
+
+;//imposta il valore iniziale di ciascuna cella 
 
 
 (defrule create1
-  (declare (salience 27))
+  (declare (salience 28))
   ?f<-(create-map)
   =>
   (load-facts "RealMap.txt")
@@ -65,10 +147,11 @@
 )
 
 
+
 (defrule  create2
-  (declare (salience 26))
+  (declare (salience 27))
   (create-real-map)
-  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x) (injured ?z))
+  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x) )
 =>
   (assert
     (cell
@@ -77,15 +160,25 @@
       (pos-r ?r)
       (pos-c ?c)
       (contains ?x)
-      (injured ?z)
-      (discovered no)
-      (checked no)
-      (clear no)
       (previous ?x)
     )
   )
 )
 
+(defrule creation12	
+     (declare (salience 26))
+        (create-map)
+?f1 <-  (cell (pos-r ?r) (pos-c ?c) (contains parking))
+        
+=>
+     (modify ?f1 (contains robot) (previous parking))
+     (assert (agentstatus (time 0) (step 0) (pos-r ?r) (pos-c ?c) (direction north)
+                          (free 2) (waste no))
+             (agentstatusdisplayed (time 0) (step 0) (pos-r ?r) (pos-c ?c) (direction north)
+                          (loaded no))
+             (pillrepository (id PD1) (content)))
+            
+)
 
 
 
@@ -739,13 +832,12 @@
 (defrule inform-clear-ok
 (declare (salience 20))
 ?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 clear))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty)
-    (clear no))
+(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y))
+?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty))
 ?f1<- (agentstatus (step ?i))
 =>
  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
- (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)) (clear yes))
+ (modify ?f3 (step (+ ?i 1)) (time (+ ?t 1)) )
  (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)))
  )
 
@@ -754,7 +846,7 @@
 (defrule inform-clear-KO
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) (param3 clear))
+  (exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) )
   ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains ~empty))
   ?f1<- (agentstatus (step ?i))
   ?f4<- (penalty ?p)
@@ -820,7 +912,7 @@
 (defrule Evolution-empty-no-clear
 (declare (salience 15))
 (status (time ?t) (step ?i))
-?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) (clear no))
+?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) )
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 ?f2<-	(penalty ?p)
 =>
@@ -834,7 +926,7 @@
 (defrule Evolution-empty-clear
 (declare (salience 15))
 (status (time ?t) (step ?i))
-?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) (clear yes))
+?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) )
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 =>
 (modify ?f1 (time ?t) (step ?i))
