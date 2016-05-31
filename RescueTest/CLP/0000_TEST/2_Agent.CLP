@@ -148,27 +148,27 @@
 ;  --- Regole iniziali per creare la mappa   ---
 ;  ---------------------------------------------
 
-(defrule  beginagent_kcell_no_injuried
-    (declare (salience 11))
-    (status (step 0))
-    (not (init-agent (done yes)))
-    (not (exec (step 0)))
-    (init_cell (pos-r ?r) (pos-c ?c) (contains ?x&outdoor|wall|empty|gate))
+;(defrule  beginagent_kcell_no_injuried
+;    (declare (salience 11))
+;    (status (step 0))
+;    (not (init-agent (done yes)))
+;    (not (exec (step 0)))
+;    (init_cell (pos-r ?r) (pos-c ?c) (contains ?x&outdoor|wall|empty|gate))
 
-=>
-   (assert (K-cell (pos-r ?r) (pos-c ?c) (contains ?x) (injured no)))
-)
+;=>
+;   (assert (K-cell (pos-r ?r) (pos-c ?c) (contains ?x) (injured no)))
+;)
 
-(defrule  beginagent_kcell_maybe_injuried
-    (declare (salience 11))
-    (status (step 0))
-    (not (init-agent (done yes)))
-    (not (exec (step 0)))
-    (init_cell (pos-r ?r) (pos-c ?c) (contains ?x&debris|unknown))
+;(defrule  beginagent_kcell_maybe_injuried
+;    (declare (salience 11))
+;    (status (step 0))
+;    (not (init-agent (done yes)))
+;    (not (exec (step 0)))
+;    (init_cell (pos-r ?r) (pos-c ?c) (contains ?x&debris|unknown))
 
-=>
-   (assert (K-cell (pos-r ?r) (pos-c ?c) (contains ?x) (injured unknown)))
-)
+;=>
+;   (assert (K-cell (pos-r ?r) (pos-c ?c) (contains ?x) (injured unknown)))
+;)
 
 
 

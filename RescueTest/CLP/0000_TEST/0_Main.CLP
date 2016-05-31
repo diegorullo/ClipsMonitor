@@ -59,45 +59,45 @@
 	(slot direction)		;// orientamento del robot
 	;// percezioni sulle celle adiacenti al robot: (il robot é nella 5):		        
 	         
-        (slot perc1  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc2  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc3  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc4  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc5  (allowed-values  robot))
-        (slot perc6  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc7  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc8  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
-        (slot perc9  (allowed-values  wall personseated  personstanding empty parking table seat 
-                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc1  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc2  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc3  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc4  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc5  (allowed-values  Robot))
+        (slot perc6  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc7  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc8  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
+        (slot perc9  (allowed-values  Wall PersonSeated  PersonStanding Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser DessertDispenser))
         )
 
 
-(deftemplate perc-bump
-
+(deftemplate perc-bump  	;// percezione di urto contro persone o ostacoli
 	(slot step)
-  (slot time)
-	(slot pos-r)
+        (slot time)		
+	(slot pos-r)		;// la posizione in cui si trova (la stessa in cui era prima dell'urto)
 	(slot pos-c)
 	(slot direction)
-	(slot bump (allowed-values no yes))
+	(slot bump (allowed-values no yes)) ;//restituisce yes se sbatte
 )
 
 
-(deftemplate init_cell
+; fixme: codice di Rescue, residui da eliminare
+;(deftemplate init_cell
 
-    (slot pos-r)
-    (slot pos-c)
-    (slot contains (allowed-values empty debris wall gate outdoor unknown seat))
-)
+;    (slot pos-r)
+;    (slot pos-c)
+;    (slot contains (allowed-values empty debris wall gate outdoor unknown seat))
+;)
 
-
+; fixme: codice di Rescue, residui, valutare se eliminare
 (deftemplate initial_agentposition (slot pos-r)  (slot pos-c) (slot direction))
 
 
@@ -115,6 +115,26 @@
          (slot id)
          (slot type (allowed-values patient staff)))
 
+
+(deftemplate prescription
+              (slot patient)
+              (slot meal (allowed-values normal dietetic))
+              (slot pills (allowed-values no before after))
+              (slot dessert (allowed-values yes no)))
+
+(deftemplate table-seat (slot t_pos-r) (slot t_pos-c)(slot s_pos-r) (slot s_pos-c))
+
+
+(deftemplate real_cell  (slot pos-r) (slot pos-c) 
+                         (slot contains 
+                               (allowed-values Wall Empty Parking Table Seat 
+                                      TrashBasket MealDispenser PillDispenser 
+                                      DessertDispenser)))
+
+
+(deffacts init
+	(create)
+)
 
 
 ; [fixme] eliminare
@@ -150,33 +170,11 @@
 
 
 
-(deftemplate prescription
-              (slot patient)
-              (slot meal (allowed-values normal dietetic))
-              (slot pills (allowed-values no before after))
-              (slot dessert (allowed-values yes no)))
-
-(deftemplate table-seat (slot t_pos-r) (slot t_pos-c)(slot s_pos-r) (slot s_pos-c))
-
-; [fixme] eliminare lo slot injured
-(deftemplate real_cell
-  (slot pos-r)
-  (slot pos-c)
-  (slot contains
-    (allowed-values
-                Robot Wall PersonSeated PersonStanding  
-                Empty Parking Table Seat TrashBasket
-                DessertDispenser PillDispenser MealDispenser
-    )
-  )
-
-)
 
 
 
-(deffacts init
-	(create)
-)
+
+
 
 
 ;; regola per inizializzazione
