@@ -49,19 +49,11 @@
 ; sono i fatti di cui è formato un piano che verrano poi convertite in exec
 (deftemplate plan-action
   (slot plan-step)
-  (slot action
-    (allowed-values
-      forward
-      turnright
-      turnleft
-      drill
-      load_debris
-      unload_debris
-      wait
-      inform
-      done
-    )
-  )
+  (slot action  (allowed-values Forward Turnright Turnleft Wait 
+                                      LoadMeal LoadPill LoadDessert 
+                                      DeliveryMeal DeliveryPill DeliveryDessert 
+                                      CleanTable EmptyRobot ReleaseTrash CheckId 
+                                      Inform Done))
   (slot param1)
   (slot param2)
   (slot param3)

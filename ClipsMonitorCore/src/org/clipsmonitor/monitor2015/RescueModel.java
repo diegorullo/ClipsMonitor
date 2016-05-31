@@ -274,14 +274,14 @@ public class RescueModel extends MonitorModel {
     
     
     private void updateAgent() throws CLIPSError{
-        String[] robot = core.findFact("ENV", RescueFacts.AgentStatus.factName(), "TRUE", RescueFacts.AgentStatus.slotsArray());
+        String[] robot = core.findFact("ENV", RescueFacts.AgentStatusDisplayed.factName(), "TRUE", RescueFacts.AgentStatusDisplayed.slotsArray());
         if (robot[0] != null) { //Se hai trovato il fatto
-            step = new Integer(robot[RescueFacts.AgentStatus.STEP.index()]);
+            step = new Integer(robot[RescueFacts.AgentStatusDisplayed.STEP.index()]);
 //            time = new Integer(robot[RescueFacts.AgentStatus.TIME.index()]);
-            row = new Integer(robot[RescueFacts.AgentStatus.POSR.index()]);
-            column = new Integer(robot[RescueFacts.AgentStatus.POSC.index()]);
-            direction = robot[RescueFacts.AgentStatus.DIRECTION.index()];
-            loaded = robot[RescueFacts.AgentStatus.LOADED.index()];
+            row = new Integer(robot[RescueFacts.AgentStatusDisplayed.POSR.index()]);
+            column = new Integer(robot[RescueFacts.AgentStatusDisplayed.POSC.index()]);
+            direction = robot[RescueFacts.AgentStatusDisplayed.DIRECTION.index()];
+            loaded = robot[RescueFacts.AgentStatusDisplayed.LOADED.index()];
             mode = loaded.equals("yes") ? "loaded" : "unloaded";
         }
     }
@@ -550,14 +550,17 @@ public class RescueModel extends MonitorModel {
             "  (slot step) \n" +
             "  (slot action  \n" +
             "    (allowed-values \n" +
-            "      forward turnright turnleft\n" +
-            "      drill load_debris unload_debris\n" +
-            "      wait inform done\n" +
+            "      forward turnright turnleft wait\n" +
+            "      loadmeal loadpill loaddessert\n" +
+            "      deliverymeal deliverypill deliverydessert\n" +
+            "      cleantable emptyrobot releasetrash checkid\n" +
+            "      inform done\n" +
             "    )\n" +
             "  )\n" +
             "  (slot param1)\n" +
             "  (slot param2)\n" +
             "  (slot param3)\n" +
+            "  (slot param4)\n" +
             ")\n";
 
         String overrideExecRule = "" +
@@ -565,11 +568,11 @@ public class RescueModel extends MonitorModel {
             "  (declare (salience 1))\n" +
             "  (status (step ?s))\n" +
             "  ?exec <- (exec (step ?s))\n" +
-            "  ?override <- (override-exec (step ?s)(action ?a)(param1 ?p1)(param2 ?p2)(param3 ?p3))\n" +
+            "  ?override <- (override-exec (step ?s)(action ?a)(param1 ?p1)(param2 ?p2)(param3 ?p3)(param4 ?p4))\n" +
             "  =>\n" +
             "  (retract ?exec)\n" +
             "  (retract ?override)\n" +
-            "  (assert (exec (step ?s)(action ?a)(param1 ?p1)(param2 ?p2)(param3 ?p3)))\n" +
+            "  (assert (exec (step ?s)(action ?a)(param1 ?p1)(param2 ?p2)(param3 ?p3)(param4 ?p4)))\n" +
             ")";
 
         boolean check = core.build("AGENT", overrideExecTemplate);
@@ -657,11 +660,11 @@ public class RescueModel extends MonitorModel {
       for(int i=0;i<undiscovered.length;i++)
       {
         String contains = undiscovered[i][RescueFacts.Cell.CONTAINS.index()];
-        String injured = undiscovered[i][RescueFacts.Cell.INJURED.index()];
-        String discovered = undiscovered[i][RescueFacts.Cell.DISCOVERED.index()];
-        if(contains.equals("debris") && injured.contains("yes") && !discovered.equals("yes")){
-          count++;
-        }
+   //     String injured = undiscovered[i][RescueFacts.Cell.INJURED.index()];
+   //     String discovered = undiscovered[i][RescueFacts.Cell.DISCOVERED.index()];
+  //      if(contains.equals("debris") && injured.contains("yes") && !discovered.equals("yes")){
+  //        count++;
+  //      }
       }
       return count;
       
@@ -675,11 +678,11 @@ public class RescueModel extends MonitorModel {
       for(int i=0;i<unchecked.length;i++)
       {
         String contains = unchecked[i][RescueFacts.Cell.CONTAINS.index()];
-        String injured = unchecked[i][RescueFacts.Cell.INJURED.index()];
-        String uncheck = unchecked[i][RescueFacts.Cell.CHECKED.index()];
-        if(contains.equals("debris") && injured.contains("no") && !uncheck.equals("yes")){
-          count++;
-        }
+  //      String injured = unchecked[i][RescueFacts.Cell.INJURED.index()];
+  //      String uncheck = unchecked[i][RescueFacts.Cell.CHECKED.index()];
+ //       if(contains.equals("debris") && injured.contains("no") && !uncheck.equals("yes")){
+ //         count++;
+ //       }
       }
       return count;
 

@@ -24,80 +24,59 @@
 
 (defmodule MAIN (export ?ALL))
 
+;// DEFTEMPLATE
+
 
 (deftemplate exec 
 	(slot step) 	
-	(slot action  (allowed-values forward turnright turnleft wait 
-                                      loadmeal loadpill loaddessert 
-                                      deliverymeal deliverypill deliverydessert 
-                                      cleantable emptyrobot releasetrash checkid 
-                                      inform done))
+	(slot action  (allowed-values Forward Turnright Turnleft Wait 
+                                      LoadMeal LoadPill LoadDessert 
+                                      DeliveryMeal DeliveryPill DeliveryDessert 
+                                      CleanTable EmptyRobot ReleaseTrash CheckId 
+                                      Inform Done))
         (slot param1)
         (slot param2)
         (slot param3)
         (slot param4))
 
+(deftemplate msg-to-agent 
+           (slot request-time)
+           (slot step)
+           (slot sender)             ; // persona che fa la richiesta
+           (slot request (allowed-values meal dessert))
+           (slot t_pos-r)            ;// posizione del tavolo a cui servire
+           (slot t_pos-c))
+
+; [fixme] eliminare valori permessi per result: no, done, disaster
+(deftemplate status (slot step) (slot time) (slot result (allowed-values on stop no done disaster)) )
 
 
-
-(deftemplate status (slot step) (slot time) (slot result (allowed-values no done disaster)) )
-
-(deftemplate table-seat (slot t_pos-r) (slot t_pos-c)(slot s_pos-r) (slot s_pos-c))
-(deftemplate prescription
-              (slot patient)
-              (slot meal (allowed-values normal dietetic))
-              (slot pills (allowed-values no before after))
-              (slot dessert (allowed-values yes no)))
-(deftemplate init_cell
-
-    (slot pos-r)
-    (slot pos-c)
-    (slot contains (allowed-values empty debris wall gate outdoor unknown seat))
-)
-
-
-(deftemplate initial_agentposition (slot pos-r)  (slot pos-c) (slot direction))
-
-
-(deftemplate perc-vision
-    (slot step)
-    (slot time)
-    (slot pos-r)
-    (slot pos-c)
-    (slot direction)
-    (slot perc1  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc2  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc3  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc4  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc5  (allowed-values  robot empty debris wall gate outdoor person seat))
-    (slot perc6  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc7  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc8  (allowed-values   empty debris wall gate outdoor person seat))
-    (slot perc9  (allowed-values   empty debris wall gate outdoor person seat))
-)
-
-
-(deftemplate perc-acoust
-  (slot step)
-  (slot time)
-  (slot pos-r)
-  (slot pos-c)
-  (slot ac (allowed-values no yes))
-)
-
-
-
-
-(deftemplate perc-drill
-   (slot step)
-   (slot time)
-   (slot pos-r)
-   (slot pos-c)
-   (slot result (allowed-values yes no fail))
-)
-
-
-
+(deftemplate perc-vision	;// la percezione di visione avviene dopo ogni azione, fornisce informazioni sullo stato del sistema
+	(slot step)
+        (slot time)	
+	(slot pos-r)		;// informazioni sulla posizione del robot (riga)
+	(slot pos-c)		;// (colonna)
+	(slot direction)		;// orientamento del robot
+	;// percezioni sulle celle adiacenti al robot: (il robot é nella 5):		        
+	         
+        (slot perc1  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc2  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc3  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc4  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc5  (allowed-values  robot))
+        (slot perc6  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc7  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc8  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        (slot perc9  (allowed-values  wall personseated  personstanding empty parking table seat 
+                                      trashbasket mealdispenser pilldispenser dessertdispenser))
+        )
 
 
 (deftemplate perc-bump
@@ -111,7 +90,56 @@
 )
 
 
+(deftemplate init_cell
 
+    (slot pos-r)
+    (slot pos-c)
+    (slot contains (allowed-values empty debris wall gate outdoor unknown seat))
+)
+
+
+(deftemplate initial_agentposition (slot pos-r)  (slot pos-c) (slot direction))
+
+
+
+
+(deftemplate perc-load
+                      (slot step)
+                      (slot time)
+                      (slot load  (allowed-values yes no)) ) 
+
+
+(deftemplate perc-id  
+         (slot step)
+         (slot time)
+         (slot id)
+         (slot type (allowed-values patient staff)))
+
+
+
+; [fixme] eliminare
+(deftemplate perc-acoust
+  (slot step)
+  (slot time)
+  (slot pos-r)
+  (slot pos-c)
+  (slot ac (allowed-values no yes))
+)
+
+
+
+; [fixme] eliminare
+(deftemplate perc-drill
+   (slot step)
+   (slot time)
+   (slot pos-r)
+   (slot pos-c)
+   (slot result (allowed-values yes no fail))
+)
+
+
+
+; [fixme] eliminare
 (deftemplate perc-loaded
   (slot step)
   (slot time)
@@ -119,6 +147,31 @@
   (slot robotpos-c)
   (slot loaded  (allowed-values yes no))
 )
+
+
+
+(deftemplate prescription
+              (slot patient)
+              (slot meal (allowed-values normal dietetic))
+              (slot pills (allowed-values no before after))
+              (slot dessert (allowed-values yes no)))
+
+(deftemplate table-seat (slot t_pos-r) (slot t_pos-c)(slot s_pos-r) (slot s_pos-c))
+
+; [fixme] eliminare lo slot injured
+(deftemplate real_cell
+  (slot pos-r)
+  (slot pos-c)
+  (slot contains
+    (allowed-values
+                Robot Wall PersonSeated PersonStanding  
+                Empty Parking Table Seat TrashBasket
+                DessertDispenser PillDispenser MealDispenser
+    )
+  )
+
+)
+
 
 
 (deffacts init
@@ -240,7 +293,7 @@
 ;; SI BLOCCA TUTTO SE OCCORRE DISASTER
 
 
-
+; [fixme] da eliminare, ereditato da Rescue
 (defrule disaster
 
    (declare (salience 19))

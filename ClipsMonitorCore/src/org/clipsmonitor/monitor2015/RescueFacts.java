@@ -24,8 +24,8 @@ public final class RescueFacts{
     public enum RealCell implements RescueFact{
         POSR (0, "pos-r"),
         POSC (1, "pos-c"),
-        CONTAINS (2, "contains"),
-        INJURED (3, "injured"); //[fixme] not used for AL
+        CONTAINS (2, "contains");
+        //INJURED (3, "injured"); //[fixme] not used for AL
 
         private static final String FACT_NAME = "real_cell";
         private final int index;
@@ -72,17 +72,17 @@ public final class RescueFacts{
         public static String getRealCell(int posR, int posC, String content, boolean injured) {
 
             String RealCell = "";
-            String inj = injured ? "yes" : "no";
+           // String inj = injured ? "yes" : "no";
             String [] split = content.split("\\+");
             String contains= split[0];
 
-            if (content.contains("debris")) contains = "debris";
+            //if (content.contains("debris")) contains = "debris";
 
             RealCell = "(" + RescueFacts.RealCell.factName()
                     + "(" + RescueFacts.RealCell.POSR.slot() + " " + posR + ") "
                     + "(" + RescueFacts.RealCell.POSC.slot() + " " + posC + ") "
-                    + "(" + RescueFacts.RealCell.CONTAINS.slot() + " " +contains + ") "
-                    + "(" + RescueFacts.RealCell.INJURED.slot() + " " +inj + ")) \n";
+                    + "(" + RescueFacts.RealCell.CONTAINS.slot() + " " +contains + ")) \n";
+                    
 
             return RealCell;
         }
@@ -93,14 +93,16 @@ public final class RescueFacts{
 
 
     public enum Cell implements RescueFact{
-        POSR (0, "pos-r"),
-        POSC (1, "pos-c"),
-        CONTAINS(2, "contains"),
-        INJURED (3, "injured"), //[fixme] not used for AL
-        DISCOVERED (4, "discovered"), //[fixme] not used for AL
-        CHECKED (5, "checked"), //[fixme] not used for AL
-        CLEAR(6, "clear"), //[fixme] not used for AL
-        PREVIOUS(7, "previous");
+        STEP  (0, "step"),
+        TIME  (1, "time"),
+        POSR (2, "pos-r"),
+        POSC (3, "pos-c"),
+        CONTAINS(4, "contains"),
+        //;INJURED (3, "injured"), //[fixme] not used for AL
+        //;DISCOVERED (4, "discovered"), //[fixme] not used for AL
+        //;CHECKED (5, "checked"), //[fixme] not used for AL
+        //;CLEAR(6, "clear"), //[fixme] not used for AL
+        PREVIOUS(5, "previous");
 
         private static final String FACT_NAME = "cell";
         private final int index;
@@ -298,20 +300,20 @@ public final class RescueFacts{
 
 
 
-    public enum AgentStatus implements RescueFact{
+    public enum AgentStatusDisplayed implements RescueFact{
         STEP(0, "step"),
         TIME(1, "time"),
         POSR (2, "pos-r"),
         POSC (3, "pos-c"),
         DIRECTION(4, "direction"),
-        LOADED (5, "loaded"), // [fixme] not used for AL
-        CONTENT (6, "content"); // [fixme] AL: gestione multislot?
+        LOADED (5, "loaded"); // [fixme] not used for AL
+        //CONTENT (6, "content"); // [fixme] AL: gestione multislot?
 
         private static final String FACT_NAME = "agentstatus";
         private final int index;
         private final String slot;
 
-        AgentStatus(int index, String slot){
+        AgentStatusDisplayed(int index, String slot){
             this.index = index;
             this.slot = slot;
         }
@@ -343,14 +345,14 @@ public final class RescueFacts{
         public static String getAgentStatus(String ident , int step , int x , int y) {
 
             String agent = "";
-            agent ="(" + AgentStatus.FACT_NAME     +
-                    "(" + AgentStatus.STEP.slot     + " " + step    +   ")" +
-                    "(" + AgentStatus.TIME.slot     + " " + 0       +   ")" +
-                    "(" + AgentStatus.DIRECTION.slot    + " " + ident   +   ")" +
-                    "(" + AgentStatus.POSR.slot     + " " + x       +   ")" +
-                    "(" + AgentStatus.POSC.slot     + " " + y       +   ")" +
-                    "(" + AgentStatus.LOADED.slot + " " + 0       +   ")" +
-                    "(" + AgentStatus.CONTENT.slot + " out"        +   ")" +
+            agent ="(" + AgentStatusDisplayed.FACT_NAME     +
+                    "(" + AgentStatusDisplayed.STEP.slot     + " " + step    +   ")" +
+                    "(" + AgentStatusDisplayed.TIME.slot     + " " + 0       +   ")" +
+                    "(" + AgentStatusDisplayed.DIRECTION.slot    + " " + ident   +   ")" +
+                    "(" + AgentStatusDisplayed.POSR.slot     + " " + x       +   ")" +
+                    "(" + AgentStatusDisplayed.POSC.slot     + " " + y       +   ")" +
+                    "(" + AgentStatusDisplayed.LOADED.slot + " " + 0       +   ")" +
+   //                 "(" + AgentStatusDisplayed.CONTENT.slot + " out"        +   ")" +
                     ")\n";
 
             return agent;

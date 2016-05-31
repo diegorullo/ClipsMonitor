@@ -93,11 +93,11 @@ public class RescueEnvMap extends MonitorMap implements Observer {
             int c = new Integer(fact[RescueFacts.Cell.POSC.index()]) - 1;
             int r = new Integer(fact[RescueFacts.Cell.POSR.index()]) - 1;
             String contains = fact[RescueFacts.Cell.CONTAINS.index()];
-            String injured = fact[RescueFacts.Cell.INJURED.index()];
+            //String injured = fact[RescueFacts.Cell.INJURED.index()];
             String previous = fact[RescueFacts.Cell.PREVIOUS.index()];
-            String discovered = fact[RescueFacts.Cell.DISCOVERED.index()];
-            String checked = fact[RescueFacts.Cell.CHECKED.index()];
-            String clear = fact[RescueFacts.Cell.CLEAR.index()];
+            //String discovered = fact[RescueFacts.Cell.DISCOVERED.index()];
+            //String checked = fact[RescueFacts.Cell.CHECKED.index()];
+            //String clear = fact[RescueFacts.Cell.CLEAR.index()];
             
             //caso di default preleviamo il valore dello slot contains e lo applichiamo alla mappa
             map[r][c] = contains;  
@@ -108,21 +108,21 @@ public class RescueEnvMap extends MonitorMap implements Observer {
 
             // controlla se lo slot injured sia impostato a yes
             
-            if (injured.equals("yes")) {
-                map[r][c] += "_injured";
-            }
+ //           if (injured.equals("yes")) {
+ //               map[r][c] += "_injured";
+  //          }
 
-            if (discovered.equals("yes")) {
-                map[r][c] += "+discovered";
-            }
+ //           if (discovered.equals("yes")) {
+ //               map[r][c] += "+discovered";
+ //           }
 
-            if (checked.equals("yes")) {
-                map[r][c] += "+checked";
-            }
+ //           if (checked.equals("yes")) {
+ //               map[r][c] += "+checked";
+ //           }
 
-            if (clear.equals("yes")) {
-                map[r][c] += "+clear";
-            }
+ //           if (clear.equals("yes")) {
+ //               map[r][c] += "+clear";
+ //           }
         }
     }
 

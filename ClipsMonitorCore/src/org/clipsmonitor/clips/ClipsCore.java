@@ -147,6 +147,9 @@ public class ClipsCore {
                 else if(sourceName.startsWith("history")){
                     destName = "history.txt";
                 } 
+                else if(sourceName.startsWith("Prescription")){
+                    destName = "Prescription.txt";
+                }
                 else{
                     destName = sourceName;
                 }

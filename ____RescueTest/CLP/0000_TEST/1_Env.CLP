@@ -13,11 +13,9 @@
   (slot contains
     (allowed-values
       empty
-      debris
       wall
       gate
       person
-      outdoor
 ; [adeguamentoAL]
       seat
       table 
@@ -31,36 +29,14 @@
   (slot injured (allowed-values yes no))
 )
 
-(deftemplate cell
-  (slot step)
-  (slot time)
-  (slot pos-r)
-  (slot pos-c)
-  (slot contains
-    (allowed-values
-       robot
-       empty
-       debris
-       wall
-       gate
-       person
-       outdoor
-; [adeguamentoAL]
-      seat
-      table 
-      dessertdispenser  
-      parking 
-      mealdispenser 
-      trashbasket 
-      pilldispenser
-    )
-  )
-  (slot injured (allowed-values yes no))
-  (slot previous)
-  (slot discovered)
-  (slot checked)
-  (slot clear)
-)
+
+(deftemplate cell  (slot step) (slot time)(slot pos-r) (slot pos-c) 
+                   (slot contains (allowed-values robot wall personseated personstanding  
+                                                  empty parking table seat trashbasket
+                                                  dessertdispenser pilldispenser mealdispenser))
+                   (slot previous))
+
+
 
 (deftemplate agentstatus
   (slot step)
@@ -68,7 +44,97 @@
   (slot pos-r)
   (slot pos-c)
   (slot direction)
-  (slot loaded)
+  ;(slot loaded)
+	(multislot content)
+        (slot free)
+        (slot waste)
+)
+
+(deftemplate agentstatusdisplayed 
+
+	(slot step)
+        (slot time) 
+
+	(slot pos-r) 
+
+	(slot pos-c) 
+
+	(slot direction) 
+
+	(slot loaded)
+
+)
+
+
+(deftemplate tablestatus	
+
+	(slot step)
+        (slot time)
+
+	(slot pos-r) 
+
+	(slot pos-c) 
+
+	(slot clean (allowed-values yes no stop))
+
+	(slot occupied-by)
+        )
+
+
+(deftemplate mealstatus	;// 
+
+	(slot step)
+        (slot time)			;// tempo corrente
+
+	(slot arrivaltime)	;// momento in cui é arrivata l'ordinazione
+
+	(slot requested-by)	;// 
+
+	(slot type)
+        (slot tpos-r)
+        (slot tpos-c)
+        (slot delivered)
+        (slot delivertime)
+        (slot answer (allowed-values pending yes wait reject))	
+
+)
+
+(deftemplate dessertstatus	;// 
+
+	(slot step)
+        (slot time)			;// tempo corrente
+
+	(slot arrivaltime)	;// momento in cui é arrivata l'ordinazione
+
+	(slot requested-by)	;// 
+        (slot tpos-r)
+        (slot tpos-c)
+        (slot delivered)
+        (slot answer (allowed-values pending yes wait reject))	
+
+)
+
+(deftemplate pillstatus	;// 
+
+	(slot step)
+        (slot time)			;// tempo corrente
+
+	(slot for)	;// 
+        (slot delivered)
+        (slot when (allowed-values before after no))	
+
+)
+
+
+(deftemplate initpersonpos	;// informazioni sulla posizione degli anziani
+
+	(slot ident)
+
+	(slot type (allowed-values staff patient))
+        (slot pos-r)
+
+	(slot pos-c)			
+
 )
 
 (deftemplate personstatus 	;// informazioni sulla posizione delle persone
@@ -79,6 +145,23 @@
   (slot pos-c)
   (slot activity)   ;// activity out se soccorritore � outdoor, stand se in piedi, oppure path
   (slot move)
+)
+
+
+(deftemplate staffstatus 	;// informazioni sulla posizione delle persone
+
+	(slot step)
+        (slot time)
+
+	(slot ident)
+
+	(slot pos-r)
+
+	(slot pos-c)
+
+	(slot activity)   ;// activity  stand se in piedi, oppure path  		
+        (slot move)			
+
 )
 
 (deftemplate personmove		;// modella i movimenti delle persone. l'environment deve tenere conto dell'interazione di tanti agenti. Il mondo cambia sia per le azioni del robot, si per le azioni degli operatori. Il modulo environment deve gestire le interazioni.

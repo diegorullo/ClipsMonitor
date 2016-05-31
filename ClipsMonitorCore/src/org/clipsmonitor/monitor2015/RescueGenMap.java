@@ -68,7 +68,7 @@ public class RescueGenMap extends MonitorGenMap {
         this.maxduration = 300;
         this.mode = "scene";
         this.personName = "person";
-        this.defaulagentcondition = "gate+agent_north_unloaded";
+        this.defaulagentcondition = "parking+agent_north_unloaded";
         this.defaultagentposition = new int[2];
         this.defaultagentposition[0] = 3;
         this.defaultagentposition[1] = 2;
@@ -86,12 +86,9 @@ public class RescueGenMap extends MonitorGenMap {
           "agent_east_loaded",
           "agent_south_unloaded", 
           "agent_south_loaded", 
-          "gate", 
-          "empty", 
-          "outdoor", 
-          "wall", 
-          "debris", 
-          "debris_injured"
+          "parking", 
+          "empty",        
+          "wall"
         };
         this.setKeyColor=new String[]
         {
@@ -134,7 +131,7 @@ public class RescueGenMap extends MonitorGenMap {
         for (int i = 0; i < scene.length; i++) {
             for (int j = 0; j < scene[i].length; j++) {
                 if (i == 0 || i == scene.length - 1 || j == 0 || j == scene[0].length - 1) {
-                    scene[i][j] = "outdoor";
+                    scene[i][j] = "wall";
                 } else if (i == 1 || i == scene.length - 2 || j == 1 || j == scene[0].length - 2) {
                     scene[i][j] = "wall";
                 } else {
@@ -144,7 +141,7 @@ public class RescueGenMap extends MonitorGenMap {
             }
         }
 
-        scene[this.agentposition[0]][this.agentposition[1]] = "gate" + "+" + "agent_" + direction + "_" + loaded;
+        scene[this.agentposition[0]][this.agentposition[1]] = "parking" + "+" + "agent_" + direction + "_" + loaded;
         this.move = this.clone(scene);
     }
 
@@ -361,7 +358,9 @@ public class RescueGenMap extends MonitorGenMap {
         BufferedReader mapread = new BufferedReader(new FileReader(map));
         String l = "";
         log(map.getName());
-        String regex = "\\s*(\\(real_cell\\s*(\\(pos-r (\\d+)\\))\\s*(\\(pos-c (\\d+)\\))\\s*(\\(contains ([a-z]+)\\))\\s*(\\(injured (yes|no)\\))\\)\\s*)";
+        //String regex = "\\s*(\\(real_cell\\s*(\\(pos-r (\\d+)\\))\\s*(\\(pos-c (\\d+)\\))\\s*(\\(contains ([a-z]+)\\))\\s*(\\(injured (yes|no)\\))\\)\\s*)";
+        String regex = "\\s*(\\(real_cell\\s*(\\(pos-r (\\d+)\\))\\s*(\\(pos-c (\\d+)\\))\\s*(\\(contains ([a-z]+)\\))\\)\\s*)";
+        
         Pattern p = Pattern.compile(regex);
         int maxR=0 ;
         int maxC=0 ;

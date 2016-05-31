@@ -16,9 +16,9 @@
         (slot time) ;  Rescue
         (slot pos-r) 
         (slot pos-c) 
-        (slot contains (allowed-values robot wall personseated personstanding  
-                                                  empty parking table seat trashbasket
-                                                  dessertdispenser pilldispenser mealdispenser))
+        (slot contains (allowed-values robot wall Robot Wall PersonSeated PersonStanding  
+                                                  Empty Parking Table Seat TrashBasket
+                                                  DessertDispenser PillDispenser MealDispenser))
         (slot previous)
 
 )
@@ -30,7 +30,10 @@
   (slot pos-r)
   (slot pos-c)
   (slot direction)
-  (slot loaded) ; sostituire con content (multislot)
+  ;(slot loaded) ; sostituire con content (multislot)
+	(multislot content)
+        (slot free)
+        (slot waste)
 )
 
 (deftemplate agentstatusdisplayed 
@@ -166,12 +169,12 @@
 )
 
 (defrule creation12	
-     (declare (salience 26))
+     (declare (salience 25))
         (create-map)
-?f1 <-  (cell (pos-r ?r) (pos-c ?c) (contains parking))
+?f1 <-  (cell (pos-r ?r) (pos-c ?c) (contains Parking))
         
 =>
-     (modify ?f1 (contains robot) (previous parking))
+     (modify ?f1 (contains Robot) (previous Parking))
      (assert (agentstatus (time 0) (step 0) (pos-r ?r) (pos-c ?c) (direction north)
                           (free 2) (waste no))
              (agentstatusdisplayed (time 0) (step 0) (pos-r ?r) (pos-c ?c) (direction north)
@@ -182,13 +185,12 @@
 
 
 
-
 (defrule  create3-2
   (declare (salience 25))
   (create-init-map)
 ; [adeguamentoAL]
 ;  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
-   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
+ (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&Wall|Parking|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser))
 
   =>
   (assert (init_cell (pos-r ?r) (pos-c ?c) (contains ?x)))
@@ -204,7 +206,7 @@
 (defrule  create3-3
   (declare (salience 25))
   (create-init-map)
-  (real_cell (pos-r ?r) (pos-c ?c) (contains empty))
+  (real_cell (pos-r ?r) (pos-c ?c) (contains Empty))
 =>
   (assert (init_cell (pos-r ?r) (pos-c ?c) (contains unknown)))
 )
@@ -216,7 +218,7 @@
   (create-init-map)
 ; [adeguamentoAL]
 ;  (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|gate|debris|seat|table|dessertdispenser|parking|mealdispenser|trashbasket|pilldispenser))
-   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
+   (real_cell (pos-r ?r) (pos-c ?c) (contains ?x&Wall|Parking|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser))
   (not (init_cell (pos-r ?r) (pos-c ?c)))
   =>
   (assert (init_cell (pos-r ?r) (pos-c ?c) (contains unknown)))
@@ -232,6 +234,50 @@
   (retract ?f1)
 )
 
+(defrule creation31	
+	(declare (salience 23))
+        (create-initial-setting)
+        (initpersonpos (ident ?p) (type patient) (pos-r ?r) (pos-c ?c))
+=>
+   	(assert (personstatus (step 0) (time 0) (ident ?p) 
+                              (pos-r ?r) (pos-c ?c)
+                              (activity seated) (move NA)))
+)
+
+(defrule creation32	
+	(declare (salience 23))
+        (create-initial-setting)
+        (initpersonpos (ident ?p) (type staff) (pos-r ?r) (pos-c ?c))
+?f1<-   (cell (pos-r ?r) (pos-c ?c) (contains Empty))
+=>
+   	(assert (staffstatus (step 0) (time 0) (ident ?p) 
+                              (pos-r ?r) (pos-c ?c)
+                              (activity stand) (move NA)))
+        (modify ?f1 (contains PersonStanding) (previous Empty))
+)
+
+(defrule creation331
+      (declare (salience 23))
+      (create-initial-setting)
+      (prescription (patient ?id) (pills ?pills&~no))
+      (not (pillstatus (step 0) (for ?id)))
+?f<-  (pillrepository (content $?cont))
+=> 
+      (assert (pillstatus (step 0) (time 0) (for ?id) (delivered no) 
+                          (when ?pills)))
+      (modify ?f (content (insert$ $?cont 1 ?id)))
+)
+
+(defrule creation332
+      (declare (salience 23))
+      (create-initial-setting)
+      (prescription (patient ?id) (pills no))
+      (not (pillstatus (step 0) (for ?id)))
+?f<-  (pillrepository (content $?cont))
+=> 
+      (assert (pillstatus (step 0) (time 0) (for ?id) (delivered no) 
+                          (when no)))
+)
 
 
 (defrule creation5
@@ -251,9 +297,16 @@
      (contains ?xx)
      )
   =>
-  (modify ?f3 (contains robot) (previous ?xx))
+  (modify ?f3 (contains Robot) (previous ?xx))
   (assert
     (agentstatus
+      (step 0)
+      (time 0)
+      (pos-r ?r)
+      (pos-c ?c)
+      (direction ?d)     
+    )
+    (agentstatusdisplayed
       (step 0)
       (time 0)
       (pos-r ?r)
@@ -281,14 +334,14 @@
 (defrule move-north-ok1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded no))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north))
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-r (+ ?r 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1)) (contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1)) (contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -297,14 +350,14 @@
 (defrule move-north-ok2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded yes))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r =(+ ?r 1)) (pos-c ?c) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-r (+ ?r 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1)) (contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1)) (contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -313,7 +366,7 @@
 (defrule move-north-bump1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north))
   ?f3<- (cell
           (step ?i)
@@ -321,7 +374,7 @@
           (pos-c ?c)
 ; [adeguamentoAL]
 ;          (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser)
-           (contains wall|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser)
+           (contains Wall|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser)
         )
   ?f4<- (penalty ?p)
   =>
@@ -347,13 +400,13 @@
 (defrule move-north-bump2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north))
   ?f3<- (cell
     (step ?i)
     (pos-r =(+ ?r 1))
     (pos-c ?c)
-    (contains personseated|personstanding)
+    (contains PersonSeated|PersonStanding)
     )
     ?f4<- (penalty ?p)
   =>
@@ -379,14 +432,14 @@
 (defrule move-south-ok1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded no))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-r (- ?r 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -395,14 +448,14 @@
 (defrule move-south-ok2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded yes))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-r (- ?r 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -411,12 +464,12 @@
 (defrule move-south-bump1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c)
 ; [adeguamentoAL]
 ;      (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-       (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
+       (contains Wall|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -434,10 +487,10 @@
 (defrule move-south-bump2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<- (cell (step ?i) (pos-r =(- ?r 1)) (pos-c ?c)
-      (contains personseated|personstanding))
+      (contains PersonSeated|PersonStanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -456,14 +509,14 @@
 (defrule move-west-ok1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded no))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-c (- ?c 1)) (step (+ ?i 1))(time (+ ?t 1)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -472,14 +525,14 @@
 (defrule move-west-ok2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded yes))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1)) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-c (- ?c 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -488,12 +541,12 @@
 (defrule move-west-bump1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1))
 ; [adeguamentoAL]
 ;     (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-      (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
+      (contains Wall|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -512,10 +565,10 @@
 (defrule move-west-bump2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(- ?c 1))
-      (contains personseated|personstanding))
+      (contains PersonSeated|PersonStanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -534,14 +587,14 @@
 (defrule move-east-ok1
     (declare (salience 20))
     ?f2<- (status (step ?i) (time ?t))
-    (exec (step ?i) (action  forward))
-    ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded no))
+    (exec (step ?i) (action  Forward))
+    ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) )
     ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-    ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|parking))
+    ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&Empty|Parking))
   =>
     (modify  ?f1 (pos-c (+ ?c 1)) (step (+ ?i 1))(time (+ ?t 1)))
     (modify  ?f2 (step (+ ?i 1))(time (+ ?t 1)))
-    (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains robot) (previous ?xx))
+    (modify  ?f3 (step (+ ?i 1))(time (+ ?t 1))(contains Robot) (previous ?xx))
     (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -550,14 +603,14 @@
 (defrule move-east-ok2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
-  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded yes))
+  (exec (step ?i) (action  Forward))
+  ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) )
   ?f4<- (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous ?zz))
-  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&empty|parking))
+  ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1)) (contains ?xx&Empty|Parking))
   =>
   (modify  ?f1 (pos-c (+ ?c 1)) (step (+ ?i 1))(time (+ ?t 2)))
   (modify  ?f2 (step (+ ?i 1))(time (+ ?t 2)))
-  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains robot) (previous ?xx))
+  (modify  ?f3 (step (+ ?i 1))(time (+ ?t 2))(contains Robot) (previous ?xx))
   (modify  ?f4 (step (+ ?i 1))(time (+ ?t 1)) (contains ?zz))
 )
 
@@ -566,12 +619,12 @@
 (defrule move-east-bump1
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1))
 ; [adeguamentoAL]
 ;      (contains wall|debris|outdoor|seat|table|dessertdispenser|mealdispenser|trashbasket|pilldispenser))
-       (contains wall|parking|table|seat|trashbasket|dessertdispenser|pilldispenser|mealdispenser))
+       (contains Wall|Table|Seat|TrashBasket|DessertDispenser|PillDispenser|MealDispenser))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -588,10 +641,10 @@
 (defrule move-east-bump2
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  forward))
+  (exec (step ?i) (action  Forward))
   ?f1<- (agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east))
   ?f3<- (cell (step ?i) (pos-r ?r) (pos-c =(+ ?c 1))
-      (contains personseated|personstanding))
+      (contains PersonSeated|PersonStanding))
   ?f4<- (penalty ?p)
   =>
   (modify  ?f1 (step (+ ?i 1))(time (+ ?t 10)))
@@ -609,8 +662,8 @@
 (defrule turnleft11
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded no))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction south) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -623,8 +676,8 @@
 (defrule turnleft12
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded yes))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction south) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -637,8 +690,8 @@
 (defrule turnleft21
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded no))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
 =>
   (modify ?f1 (direction east) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -651,8 +704,8 @@
 (defrule turnleft22
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded yes))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction east) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -665,8 +718,8 @@
 (defrule turnleft31
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded no))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction north) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -679,8 +732,8 @@
 (defrule turnleft32
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded yes))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction north) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -693,8 +746,8 @@
 (defrule turnleft41
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded no))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction west) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -707,8 +760,8 @@
 (defrule turnleft42
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnleft))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded yes))
+  (exec (step ?i) (action  Turnleft))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction west) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -721,8 +774,8 @@
 (defrule turnright11
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded no))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction north) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -735,8 +788,8 @@
 (defrule turnright12
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) (loaded yes))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction west) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction north) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -749,8 +802,8 @@
 (defrule turnright21
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded no))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction west) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -763,8 +816,8 @@
 (defrule turnright22
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south) (loaded yes))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction south))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction west) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -777,8 +830,8 @@
 (defrule turnright31
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded no))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction south) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -791,8 +844,8 @@
 (defrule turnright32
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) (loaded yes))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction east) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction south) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -805,8 +858,8 @@
 (defrule turnright41
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded no))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north))
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction east) (step (+ ?i 1)) (time (+ ?t 2)) )
@@ -819,8 +872,8 @@
 (defrule turnright42
   (declare (salience 20))
   ?f2<-	(status (step ?i) (time ?t))
-  (exec (step ?i) (action  turnright))
-  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) (loaded yes))
+  (exec (step ?i) (action  Turnright))
+  ?f1<-	(agentstatus (step ?i) (pos-r ?r) (pos-c ?c)(direction north) )
   ?f3<-	(cell (step ?i) (pos-r ?r) (pos-c ?c))
   =>
   (modify ?f1 (direction east) (step (+ ?i 1)) (time (+ ?t 3)) )
@@ -832,8 +885,8 @@
 (defrule inform-clear-ok
 (declare (salience 20))
 ?f2<- (status (step ?i) (time ?t))
-(exec (step ?i) (action  inform) (param1 ?x) (param2 ?y))
-?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains empty))
+(exec (step ?i) (action  Inform) (param1 ?x) (param2 ?y))
+?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains Empty))
 ?f1<- (agentstatus (step ?i))
 =>
  (modify ?f1  (step (+ ?i 1)) (time (+ ?t 1)))
@@ -846,8 +899,8 @@
 (defrule inform-clear-KO
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  inform) (param1 ?x) (param2 ?y) )
-  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains ~empty))
+  (exec (step ?i) (action  Inform) (param1 ?x) (param2 ?y) )
+  ?f3<- (cell (step ?i) (pos-r ?x) (pos-c ?y) (contains ~Empty))
   ?f1<- (agentstatus (step ?i))
   ?f4<- (penalty ?p)
   =>
@@ -867,9 +920,9 @@
 (defrule done-no-gate
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  done))
+  (exec (step ?i) (action  Done))
   (agentstatus (step ?i) (pos-r ?r) (pos-c ?c))
-  (cell (step ?i)(pos-r ?r) (pos-c ?c) (previous ~parking))
+  (cell (step ?i)(pos-r ?r) (pos-c ?c) (previous ~Parking))
   ?f1<- (penalty ?p)
   =>
   (assert (penalty (+ ?p 100000)))
@@ -883,9 +936,9 @@
 (defrule done-in-gate
   (declare (salience 20))
   ?f2<- (status (step ?i) (time ?t))
-  (exec (step ?i) (action  done))
+  (exec (step ?i) (action  Done))
   (agentstatus (step ?i) (pos-r ?r) (pos-c ?c))
-  (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous parking))
+  (cell (step ?i) (pos-r ?r) (pos-c ?c) (previous Parking))
   =>
   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 1)) (result done))
   (pop-focus)
@@ -901,7 +954,7 @@
 (defrule wait
   (declare (salience 20))
   ?f2<-	(status (time ?t) (step ?i))
-  (exec (step ?i) (action wait))
+  (exec (step ?i) (action Wait))
   ?f1<-	(agentstatus (step ?i) (time ?t))
   =>
   (modify ?f2 (step (+ ?i 1)) (time (+ ?t 5)))
@@ -912,7 +965,7 @@
 (defrule Evolution-empty-no-clear
 (declare (salience 15))
 (status (time ?t) (step ?i))
-?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) )
+?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains Empty) )
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 ?f2<-	(penalty ?p)
 =>
@@ -926,7 +979,7 @@
 (defrule Evolution-empty-clear
 (declare (salience 15))
 (status (time ?t) (step ?i))
-?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains empty) )
+?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y) (contains Empty) )
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 =>
 (modify ?f1 (time ?t) (step ?i))
@@ -940,7 +993,7 @@
 (status (time ?t) (step ?i))
 ?f1<-	(cell (step = (- ?i 1)) (time ?tt) (pos-r ?x) (pos-c ?y)
 ; [adeguamentoAL]
-    (contains wall|parking|personseated|personstanding|robot|seat))
+    (contains Wall|Parking|PersonSeated|PersonStanding|Robot|Seat))
 (not (cell (step ?i) (pos-r ?x) (pos-c ?y)))
 =>
 (modify ?f1 (time ?t) (step ?i))
@@ -987,10 +1040,10 @@
               (activity ?m&~out&~stand) (move ?s))
   ?f4 <- (cell (step ?i) (pos-r ?x) (pos-c ?y) (previous ?w))
   ?f3 <- (move-path ?m =(+ ?s 1) ?id ?r ?c)
-  ?f2 <- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ?xx&empty|parking))
+  ?f2 <- (cell (step ?i) (pos-r ?r) (pos-c ?c) (contains ?xx&Empty|Parking))
 =>
    (modify  ?f1  (step ?i) (time ?t) (pos-r ?r) (pos-c ?c) (move (+ ?s 1)))
-   (modify ?f2 (contains personstanding) (previous ?xx))
+   (modify ?f2 (contains PersonStanding) (previous ?xx))
    (modify ?f4 (contains ?w))
    (retract ?f3)
 )
@@ -1003,7 +1056,7 @@
 (status (step ?i) (time ?t))
 ?f1<-	(personstatus (step =(- ?i 1)) (time ?tt) (ident ?id) (activity ?m&~out&~stand) (move ?s))
 (move-path ?m =(+ ?s 1) ?id ?r ?c)
-(cell (step ?i) (pos-r ?r) (pos-c ?c) (contains robot))
+(cell (step ?i) (pos-r ?r) (pos-c ?c) (contains Robot))
 ?f2<-	(penalty ?p)
 =>
 (modify  ?f1 (time ?t) (step ?i))
@@ -1021,7 +1074,7 @@
   ?f1<-	(personstatus (step =(- ?i 1)) (time ?tt) (ident ?id) (activity ?m&~out&~stand) (move ?s))
   (move-path ?m =(+ ?s 1) ?id ?r ?c)
 ; [adeguamentoAL]
-  (cell (step ?i)(pos-r ?r) (pos-c ?c) (contains wall|personseated|personstanding|seat|table|dessertdispenser|mealdispenser|pilldispenser|trashbasket))
+  (cell (step ?i)(pos-r ?r) (pos-c ?c) (contains Wall|PersonSeated|PersonStanding|Seat|Table|DessertDispenser|MealDispenser|PillDispenser|TrashBasket))
 =>
   (modify  ?f1 (time ?t) (step ?i))
 )
