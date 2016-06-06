@@ -123,7 +123,8 @@ public abstract class MonitorModel extends Observable implements Runnable {
                     partialUpdateString = clipsMonitorFact;
                 }
                 
-                if (result.equals("done") || result.equals("disaster") || (time >= maxduration)){
+                //[MP] aggiunto la chiamata a toLoweCase, per generalizzare il codice
+                if (result.toLowerCase().equals("done") || result.equals("disaster") || (time >= maxduration)){
                     finished = true;
                     update = true;
                 }

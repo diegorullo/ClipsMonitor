@@ -6,7 +6,7 @@ import java.util.Observer;
 import net.sf.clipsrules.jni.CLIPSError;
 import org.clipsmonitor.clips.ClipsConsole;
 import org.clipsmonitor.clips.ClipsCore;
-import org.clipsmonitor.monitor2015.RescueModel;
+import org.clipsmonitor.monitor2015.AssistedLivingModel;
 
 /**
  * Questa classe astratta è la parte di view (in un'architettura MVC) e
@@ -23,7 +23,7 @@ public abstract class MonitorMap extends Observable implements Observer {
     private String[][] oldMap;
     private BufferedImage[][] iconMatrix;
     private int version;
-    protected RescueModel model;
+    protected AssistedLivingModel model;
     protected MonitorImages images;
     protected ClipsConsole console;
     protected ClipsCore core;
@@ -38,7 +38,7 @@ public abstract class MonitorMap extends Observable implements Observer {
     }
 
     protected final void init(){
-        model = RescueModel.getInstance();
+        model = AssistedLivingModel.getInstance();
         model.addObserver(this);
         console = ClipsConsole.getInstance();
         images = MonitorImages.getInstance();

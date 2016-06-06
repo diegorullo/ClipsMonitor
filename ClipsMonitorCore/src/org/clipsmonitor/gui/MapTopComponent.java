@@ -16,12 +16,12 @@ import org.clipsmonitor.clips.ClipsConsole;
 import org.clipsmonitor.core.MonitorCore;
 import org.clipsmonitor.core.MonitorImages;
 import org.clipsmonitor.core.MonitorMap;
-import org.clipsmonitor.monitor2015.RescueModel;
+import org.clipsmonitor.monitor2015.AssistedLivingModel;
 import org.openide.windows.TopComponent;
 
 public abstract class MapTopComponent extends TopComponent implements Observer {
     private MapPanel mapPanel;
-    protected RescueModel model;
+    protected AssistedLivingModel model;
     protected MonitorImages images;
     protected MonitorMap map;
     protected String target;
@@ -34,14 +34,14 @@ public abstract class MapTopComponent extends TopComponent implements Observer {
     }
     
     private void init(){
-        this.model = RescueModel.getInstance();
+        this.model = AssistedLivingModel.getInstance();
         this.model.addObserver(this);
         console = ClipsConsole.getInstance();
     }
     
     private void clear(){
         this.model = null;
-        RescueModel.clearInstance();
+        AssistedLivingModel.clearInstance();
         this.console = null;
         this.mapPanel.map = null;
         this.mapPanel.model = null;
@@ -172,13 +172,13 @@ public abstract class MapTopComponent extends TopComponent implements Observer {
     
     
     protected class MapPanel extends JPanel {
-        RescueModel model;
+        AssistedLivingModel model;
         MonitorMap map;
         
         public MapPanel(MonitorMap map) {
             
             super();
-            model = RescueModel.getInstance();
+            model = AssistedLivingModel.getInstance();
             this.map = map;
         }
        

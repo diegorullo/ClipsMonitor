@@ -9,7 +9,7 @@ import java.util.Observable;
 import java.util.Observer;
 import org.clipsmonitor.clips.ClipsConsole;
 import org.clipsmonitor.core.MonitorModel;
-import org.clipsmonitor.monitor2015.RescueModel;
+import org.clipsmonitor.monitor2015.AssistedLivingModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -52,7 +52,7 @@ public final class AgendaTopComponent extends TopComponent implements Observer {
     }
     
     private void init(){
-        model = RescueModel.getInstance();
+        model = AssistedLivingModel.getInstance();
         console = ClipsConsole.getInstance();
         model.addObserver(this);
     }

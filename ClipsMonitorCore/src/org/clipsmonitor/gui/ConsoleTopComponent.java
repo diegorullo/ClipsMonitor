@@ -21,7 +21,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.clipsmonitor.clips.ClipsConsole;
 import org.clipsmonitor.core.MonitorModel;
-import org.clipsmonitor.monitor2015.RescueModel;
+import org.clipsmonitor.monitor2015.AssistedLivingModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -73,7 +73,7 @@ public final class ConsoleTopComponent extends TopComponent implements Observer,
     }
 
     private void init(){
-        this.model = RescueModel.getInstance();
+        this.model = AssistedLivingModel.getInstance();
         console = ClipsConsole.getInstance();
         console.addObserver(this);
         model.addObserver(this);

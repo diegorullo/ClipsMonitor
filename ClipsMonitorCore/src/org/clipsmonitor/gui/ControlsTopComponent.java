@@ -36,9 +36,9 @@ import org.clipsmonitor.core.MonitorModel;
 import org.clipsmonitor.core.MonitorCore;
 import org.clipsmonitor.core.MonitorImages;
 import org.clipsmonitor.core.ProjectDirectory;
-import org.clipsmonitor.monitor2015.RescueAgentMap;
-import org.clipsmonitor.monitor2015.RescueEnvMap;
-import org.clipsmonitor.monitor2015.RescueModel;
+import org.clipsmonitor.monitor2015.AssistedLivingAgentMap;
+import org.clipsmonitor.monitor2015.AssistedLivingEnvMap;
+import org.clipsmonitor.monitor2015.AssistedLivingModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.LifecycleManager;
 import org.openide.awt.ActionID;
@@ -77,7 +77,7 @@ import org.openide.util.NbBundle.Messages;
 
 public final class ControlsTopComponent extends TopComponent implements Observer,
     KeyListener ,  ActionListener{
-    RescueModel model;
+    AssistedLivingModel model;
     MonitorCore core;
     File projectDirectory;
     ProjectDirectory directory;
@@ -509,10 +509,10 @@ public final class ControlsTopComponent extends TopComponent implements Observer
         envsSelector.setEnabled(false);
         String strategyFolder_name = CLPSelector.getSelectedItem().toString(); //La strategia scelta
         String envsFolder_name = envsSelector.getSelectedItem().toString(); //La cartella di env scelta
-        model = RescueModel.getInstance();
+        model = AssistedLivingModel.getInstance();
         model.addObserver(this);
-        model.registerMap("envMap", new RescueEnvMap());
-        model.registerMap("agentMap", new RescueAgentMap());
+        model.registerMap("envMap", new AssistedLivingEnvMap());
+        model.registerMap("agentMap", new AssistedLivingAgentMap());
         core = MonitorCore.getInstance();
         try {
             model.startCore(projectDirectory.getAbsolutePath(), strategyFolder_name, envsFolder_name); //Diciamo al modello di partire
@@ -617,7 +617,11 @@ public final class ControlsTopComponent extends TopComponent implements Observer
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK), "drill-west");
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK), "drill-east");
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK), "drill-south");
+//[MP] valutare se possibile eliminare    
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK | InputEvent.ALT_MASK), "load-north");
+//[MP] [modifica annullata] azione di LoadMealNorth
+//    stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK | InputEvent.ALT_MASK), "load-meal-north");
+    
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK | InputEvent.ALT_MASK), "load-west");
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK | InputEvent.ALT_MASK), "load-east");
     stepButton.getInputMap(JButton.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK | InputEvent.ALT_MASK), "load-south");
@@ -629,7 +633,7 @@ public final class ControlsTopComponent extends TopComponent implements Observer
             model.actionForward();
             stepButton.doClick();
         }
-    });
+    });   
 
     stepButton.getActionMap().put("left", new AbstractAction() {
         @Override
@@ -655,6 +659,7 @@ public final class ControlsTopComponent extends TopComponent implements Observer
         }
     });
 
+    //[MP] azioni di Rescue, valutare se possibile eliminare
     stepButton.getActionMap().put("load-north", new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -662,6 +667,16 @@ public final class ControlsTopComponent extends TopComponent implements Observer
             stepButton.doClick();
         }
     });
+    
+    //[MP] [modifica annullata] LoadMealNorth
+    /*
+    stepButton.getActionMap().put("load-meal-north", new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            model.actionLoadMealNorth();
+            stepButton.doClick();
+        }
+    });*/
 
     stepButton.getActionMap().put("load-west", new AbstractAction() {
         @Override

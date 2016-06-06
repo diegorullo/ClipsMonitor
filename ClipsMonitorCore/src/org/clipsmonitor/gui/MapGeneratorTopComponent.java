@@ -17,7 +17,7 @@ import javax.swing.ListModel;
 import javax.swing.filechooser.FileFilter;
 import org.clipsmonitor.core.MonitorImages;
 import org.clipsmonitor.core.ProjectDirectory;
-import org.clipsmonitor.monitor2015.RescueGenMap;
+import org.clipsmonitor.monitor2015.AssistedLivingGenMap;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -59,7 +59,7 @@ public final class MapGeneratorTopComponent extends TopComponent {
 
 
     // Var Declaration
-    private RescueGenMap model;
+    private AssistedLivingGenMap model;
     private MonitorImages img;
     private JFileChooser fc;
     private JFileChooser save;
@@ -73,7 +73,7 @@ public final class MapGeneratorTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_MapGeneratorTopComponent());
         setToolTipText(Bundle.HINT_MapGeneratorTopComponent());
-        model = RescueGenMap.getInstance();
+        model = AssistedLivingGenMap.getInstance();
         img = MonitorImages.getInstance();
         int x =Integer.parseInt(XButton.getText());
         int y =Integer.parseInt(YButton.getText());
@@ -934,7 +934,7 @@ public final class MapGeneratorTopComponent extends TopComponent {
        {
 
          model.clear();
-         model = RescueGenMap.getInstance();
+         model = AssistedLivingGenMap.getInstance();
          int x =Integer.parseInt(XButton.getText());
          int y =Integer.parseInt(YButton.getText()); 
          model.setSizeScreen(PreviewMap.getWidth(),PreviewMap.getHeight());

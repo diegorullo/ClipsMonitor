@@ -22,7 +22,7 @@ import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.clipsmonitor.clips.ClipsConsole;
-import org.clipsmonitor.monitor2015.RescueGenMap;
+import org.clipsmonitor.monitor2015.AssistedLivingGenMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1716,7 +1716,7 @@ public int AddNewPerson(int x, int y, String color, int waitTime) {
             Files.write(Paths.get(nome), info.toString(2).getBytes());
         } catch (IOException ex) {
             AppendLogMessage(ex.getMessage(),"error");
-            Logger.getLogger(RescueGenMap.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssistedLivingGenMap.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
         return true;
