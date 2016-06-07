@@ -7,9 +7,9 @@ nbdist/
 nbactions.xml
 nb-configuration.xml
 
-*RealMap.txt
-*Test.txt
-*history.txt
+# *RealMap.txt
+# *Test.txt
+# *history.txt
 
 ###Java###
 
