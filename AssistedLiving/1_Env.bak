@@ -804,10 +804,9 @@
            )
 
 (defrule done-pill_pending
-   (declare (salience 22))    
+   (declare (salience 21))    
         (status (step ?i) (time ?t)) 
         (exec (step ?i) (action  Done))
-        (mealstatus (step ?i) (time ?t) (requested-by ?id))
   ?f3<- (pillstatus (step ?i) (time ?t) (for ?id) (delivered no) 
                        (when before|after))
   ?f1<- (penalty ?p)

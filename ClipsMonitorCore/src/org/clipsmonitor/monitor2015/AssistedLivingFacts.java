@@ -616,21 +616,6 @@ public final class AssistedLivingFacts{
             return FACT_NAME;
         }
 
-
-
-        public static String getPersonMove(int step, String ident , String path){
-
-            String person = "";
-            person ="(" + PersonMove.FACT_NAME     +
-                "(" + PersonMove.STEP.slot     + " " + step    +   ")" +
-                "(" + PersonMove.IDENT.slot    + " " + ident   +   ")" +
-                "(" + PersonMove.PATH.slot     + " " + path    +   ")" +
-                ")\n";
-
-        return person;
-
-
-        }
     }
     
  
